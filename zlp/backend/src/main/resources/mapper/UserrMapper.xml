@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--
+    此 MyBatis 映射器文件定义了与 Userr 实体相关的 SQL 语句操作。
+-->
+<mapper namespace="com.lhqjlb.project.mapper.UserrMapper">
+
+    <!--
+        根据用户的 id 列表批量删除用户的删除时间。
+        参数：
+            - ids: 要更新的用户 id 数组
+            - deletetime: 删除时间
+    -->
+    <update id="deleteMany">
+        update userr
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--
+        根据用户名、密码和用户类型验证用户。
+        参数：
+            - username: 用户名
+            - pwd: 密码
+            - typee: 用户类型
+    -->
+    <select id="login" resultType="com.lhqjlb.project.entity.Userr">
+        SELECT
+        *
+        FROM
+        userr
+        WHERE
+        deletetime = 0
+        and username = #{username}
+        AND pwd = #{pwd}
+        AND typee = #{typee}
+        and statuss = "已通过"
+        LIMIT 1
+    </select>
+
+    <!--
+        根据用户名列表获取用户列表。
+        参数：
+            - username: 用户名
+    -->
+    <select id="listByUsername" resultType="com.lhqjlb.project.entity.Userr">
+        SELECT
+        *
+        FROM
+        userr
+        WHERE
+        deletetime = 0
+        and username = #{username}
+    </select>
+
+    <!--
+        分页查询用户列表。
+        参数：
+            - params.typee: 用户类型
+            - params.statuss: 用户状态
+            - params.keyword: 关键字
+    -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Userr">
+        SELECT
+        *
+        FROM
+        userr
+        where
+        deletetime = 0
+        <if test="params.typee != null and params.typee != ''">
+            and typee = #{params.typee}
+        </if>
+        <if test="params.statuss != null and params.statuss != ''">
+            and statuss = #{params.statuss}
+        </if>
+        <if test="params.keyword != null and params.keyword != ''">
+            <bind name="str1" value="'%' + params.keyword + '%'"/>
+            and (
+             namee like #{str1}
+            or username like #{str1}
+            )
+        </if>
+        ORDER BY
+        id DESC
+    </select>
+
+    <!--
+        获取用户选项列表。
+    -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Userr">
+        select * from userr where deletetime = 0
+        and typee = "药店"
+    </select>
+
+</mapper>

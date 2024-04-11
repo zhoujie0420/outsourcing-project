@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="VcsDirectoryMappings">
+    <mapping directory="$PROJECT_DIR$" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/zj/Front" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/zj/backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/zlp/backend" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/zlp/web" vcs="Git" />
+  </component>
+</project>

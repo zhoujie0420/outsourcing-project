@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Medicine表 -->
+<mapper namespace="com.lhqjlb.project.mapper.MedicineMapper">
+
+    <!-- 分页查询未删除的Medicine记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Medicine">
+        SELECT
+            *
+        FROM
+            medicine
+        where deletetime = 0
+        <if test="params.keyword != null and params.keyword != ''">
+            <bind name="str1" value="'%' + params.keyword + '%'"/>
+            and (
+            namee like #{str1}
+            or description like #{str1}
+            )
+        </if>
+        <if test="params.shopid != null">
+            and shopid = #{params.shopid}
+        </if>
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 查询未删除的Medicine记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Medicine">
+        SELECT
+            *
+        FROM
+            medicine
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update medicine
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Medicine记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Medicine">
+        SELECT
+            *
+        FROM
+            medicine
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+</mapper>

@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Knowledge表 -->
+<mapper namespace="com.lhqjlb.project.mapper.KnowledgeMapper">
+
+    <!-- 分页查询未删除的Knowledge记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Knowledge">
+        SELECT
+            *
+        FROM
+            knowledge
+        where deletetime = 0
+        and typee in ("用药知识","健康知识")
+        <if test="params.keyword != null and params.keyword != ''">
+            <bind name="str1" value="'%' + params.keyword + '%'"/>
+            and (
+            title like #{str1}
+            or content like #{str1}
+            )
+        </if>
+        <if test="params.typee != null and params.typee != ''">
+            and typee = #{params.typee}
+        </if>
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 分页查询未删除的Knowledge记录 -->
+    <select id="pageNotice" resultType="com.lhqjlb.project.entity.Knowledge">
+        SELECT
+        *
+        FROM
+        knowledge
+        where deletetime = 0
+        and typee = "公告"
+        <if test="params.keyword != null and params.keyword != ''">
+            <bind name="str1" value="'%' + params.keyword + '%'"/>
+            and (
+            title like #{str1}
+            or content like #{str1}
+            )
+        </if>
+        ORDER BY
+        id DESC
+    </select>
+
+    <!-- 查询未删除的Knowledge记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Knowledge">
+        SELECT
+            *
+        FROM
+            knowledge
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update knowledge
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Knowledge记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Knowledge">
+        SELECT
+            *
+        FROM
+            knowledge
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+</mapper>

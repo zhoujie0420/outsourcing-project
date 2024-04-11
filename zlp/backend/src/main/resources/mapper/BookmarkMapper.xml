@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Bookmark表 -->
+<mapper namespace="com.lhqjlb.project.mapper.BookmarkMapper">
+
+    <!-- 分页查询未删除的Bookmark记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Bookmark">
+        SELECT
+            *
+        FROM
+            bookmark
+        where deletetime = 0
+        <if test="params.userid != null">
+            and userid = #{params.userid}
+        </if>
+        <if test="params.typee != null and params.typee != ''">
+            and typee = #{params.typee}
+        </if>
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 查询未删除的Bookmark记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Bookmark">
+        SELECT
+            *
+        FROM
+            bookmark
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update bookmark
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Bookmark记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Bookmark">
+        SELECT
+            *
+        FROM
+            bookmark
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <select id="check" resultType="com.lhqjlb.project.entity.Bookmark">
+        select * from bookmark
+        where deletetime = 0
+        and userid = #{userid}
+        and dataid = #{dataid}
+        and typee = #{typee}
+    </select>
+
+</mapper>

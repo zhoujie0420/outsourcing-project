@@ -1,0 +1,10 @@
+/* 重置 body 的默认样式 */
+body {
+  margin: 0;
+  padding: 0;
+
+}
+
+pre{
+  font-family: "Microsoft YaHei", serif;
+}
