@@ -19,8 +19,5 @@ public class Patient {
     // ,隔开
     private String recordList;
 
-    public Patient(Integer id) {
-        this.id = id;
-    }
 }
 
