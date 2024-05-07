@@ -20,11 +20,10 @@
         <van-field v-if="peerStore.role === 1" v-model="info.otherName" label="医生姓名" placeholder="请输入医生姓名" readonly />
         <van-field v-if="peerStore.role === 2" v-model="info.otherName" label="患者姓名" placeholder="请输入患者姓名" readonly />
         <van-field v-model="info.diagnosis" label="诊断结果" placeholder="请输入诊断结果" />
-        <van-field v-model="info.prescription" label="处方" placeholder="请输入处方" />
-<!--        <van-field v-model="info.videoUrl" label="问诊回放" placeholder="请输入问诊回放链接" readonly/>-->
-
-        <el-button @click="goInfo()">详情</el-button>
-        <el-button type="primary" @click="updateRecord(info)" >提交</el-button>
+        <van-field v-model="info.prescription" label="处方链接" placeholder="请输入处方链接" />
+        <el-button v-if="peerStore.role === 2" @click="goInfo()">处方详情</el-button>
+        <el-button v-if="peerStore.role === 1" @click="goInfo()">处方下载</el-button>
+        <el-button v-if="peerStore.role === 2" type="primary" @click="updateRecord(info)" >提交</el-button>
       </section>
     </section>
   </section>

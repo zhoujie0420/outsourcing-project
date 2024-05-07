@@ -9,5 +9,6 @@ module.exports = defineConfig({
         plugins: [ComponentsPlugin({
             resolvers: [VantResolver()]
         })]
-    }
+    },
 });
+

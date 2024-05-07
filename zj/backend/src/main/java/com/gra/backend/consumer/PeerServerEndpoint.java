@@ -28,7 +28,7 @@ public class PeerServerEndpoint {
     private static final Map<String, Session> peerIdSessionMap = new ConcurrentHashMap<>();
 
     @OnOpen
-    public void onOpen(Session session, @PathParam("peerId") String peerId) {
+    public void onOpen(Session session, @PathParam("peerId") String 行peerId) {
         log.info("on open:the session is is :{},the peer id is:{}", session.getId(), peerId);
         Session removedSession = PeerServerEndpoint.peerIdSessionMap.remove(peerId);
         try {

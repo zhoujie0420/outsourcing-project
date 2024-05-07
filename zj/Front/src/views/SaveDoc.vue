@@ -1,10 +1,6 @@
 
 <template>
     <el-row>
-        <el-col :span="2" style="vertical-align: center;">服务器地址：</el-col>
-        <el-col :span="10"><el-input v-model="serverUrl" ></el-input></el-col>
-        <el-col :span="1"></el-col>
-        <el-col :span="2"><el-button plain type="primary" @click="saveHtml">保存文档</el-button></el-col>
         <el-col :span="2"> <el-button plain type="primary" @click="saveHtmlAndData">保存数据&文档</el-button></el-col>
     </el-row>
     <Source src="/code/SaveDoc.vue"></Source>
@@ -13,7 +9,6 @@
 </template>
     
 <script>
-    import axios from 'axios'
     import EditorDemo from "@/components/EditorDemo.vue";
 
     export default{
@@ -30,22 +25,34 @@
             onAfterInit: function(e) {
                 this.editor = e.editor
             },
-            //仅保存HTML文档
-            saveHtml: function() {
-                let data = {'doc': this.editor.getHtml()}
-                axios.post(this.serverUrl, data).then(res=>{
-                    console.log('res=>',res)
-                })
-            },
+
             //保存文档及机构化数据
             saveHtmlAndData: function() {
                 let data = {
                     'doc': this.editor.getHtml(),
                     'data': this.editor.getBindObject()
                 }
-                axios.post(this.serverUrl, data).then(res=>{
-                    console.log('res=>',res)
-                })
+
+              const blob = new Blob([data.doc], { type: 'text/html' }); // 指定类型为HTML
+
+              // 创建一个下载链接
+              const url = window.URL.createObjectURL(blob);
+
+              // 创建一个链接元素
+              const link = document.createElement('a');
+              link.href = url;
+
+              // 设置文件名为doc.html
+              link.setAttribute('download', 'res.doc');
+
+              // 将链接元素添加到文档中
+              document.body.appendChild(link);
+
+              // 模拟用户点击链接进行下载
+              link.click();
+
+              // 下载完成后释放URL对象
+              window.URL.revokeObjectURL(url);
             },
         }
 

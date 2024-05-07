@@ -12,7 +12,7 @@
 
     <groupId>com.gra.backend</groupId>
     <artifactId>graduation</artifactId>
-    <name>graduation</name>
+    <name>zj</name>
     <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <properties>

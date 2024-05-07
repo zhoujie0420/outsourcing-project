@@ -18,6 +18,7 @@ createApp(App)
     .component('EditorDemo', Editor)
     .component('SourceDemo', Source)
     .use(ElementPlus)
+
     .use(router)
     .use(store)
     .use(router)
