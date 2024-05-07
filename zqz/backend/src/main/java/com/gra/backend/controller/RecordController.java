@@ -33,4 +33,9 @@ public class RecordController {
     public Result<?> updateRecord(Record record) {
         return recordService.updateRecord(record);
     }
+
+    @PostMapping("deleteRecord")
+    public Result<?> deleteRecord(Record record){
+        return  recordService.deleteRecord(record);
+    }
 }

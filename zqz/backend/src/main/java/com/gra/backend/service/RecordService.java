@@ -14,6 +14,7 @@ import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,6 +31,9 @@ public class RecordService {
 
 
     public Result<?> addRecord(Record record) {
+        Integer id = UserUtil.getUser().getId();
+        record.setDoctorId(id);
+        record.setConsultationDate(new Date().toString());
         recordMapper.insert(record);
         return Result.success();
     }
@@ -74,6 +78,11 @@ public class RecordService {
     public Result<?> updateRecord(Record record) {
         record.setStatus(1);
         recordMapper.updateById(record);
+        return Result.success();
+    }
+
+    public Result<?> deleteRecord(Record record) {
+        recordMapper.deleteById(record.getId());
         return Result.success();
     }
 }
