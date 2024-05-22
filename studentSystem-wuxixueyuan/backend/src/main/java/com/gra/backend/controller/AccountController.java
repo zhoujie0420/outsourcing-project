@@ -2,6 +2,7 @@ package com.gra.backend.controller;
 
 import com.gra.backend.common.result.Result;
 import com.gra.backend.dto.UserList;
+import com.gra.backend.pojo.Course;
 import com.gra.backend.pojo.User;
 import com.gra.backend.service.AccountService;
 
@@ -37,6 +38,10 @@ public class AccountController {
         return accountService.getUserList();
     }
 
+    @PostMapping("getTeaByCourseId")
+    public Result<?> getTeaByCourseId(Course course) {
+        return accountService.getTeaByCourseId(course);
+    }
 
     @PostMapping("addUser")
     public Result<?> addUser(User user) {

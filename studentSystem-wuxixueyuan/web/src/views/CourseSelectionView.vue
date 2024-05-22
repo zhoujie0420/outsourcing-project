@@ -23,6 +23,7 @@
         </td>
         <td>
           <div class="custom-file">
+            <el-button type="success" size="small" @click="getInfo(info.id)">详情</el-button>
             <el-button v-if="info.state === 0 " disabled type="success" size="small">选课
             </el-button>
             <el-button v-if="info.state === 1 " type="danger" size="small" @click="update(info.id,0)">退课
@@ -46,10 +47,18 @@ import store from "@/store";
 import $ from 'jquery';
 import {apiUrl} from "../../config";
 import {ElNotification} from "element-plus";
+import router from "@/router";
 
 const courseInfo = ref([]); // 创建响应式的userInfos
 
 getCourseAllList()
+
+
+function getInfo(id) {
+  console.log(id)
+  router.push({name: "course_info", params: {courseId: id}});
+
+}
 
 function update(id, state) {
   $.ajax({
@@ -76,7 +85,8 @@ function update(id, state) {
           title: 'Error',
           message: '操作失败',
           type: 'error',
-        })      }
+        })
+      }
     },
   });
 }

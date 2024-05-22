@@ -281,4 +281,16 @@ public class CourseService {
         courseMapper.updateById(course);
         return Result.success();
     }
+
+    public Result<?> getCourseById(Course course) {
+        Course res = courseMapper.selectById(course.getId());
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper.eq(User::getId, res.getTeacherId());
+        String username = userMapper.selectOne(userLambdaQueryWrapper).getUsername();
+        res.setTeacher(username);
+        Integer weekTime = res.getWeekTime();
+        String nameByCode = WeekEnum.getNameByCode(weekTime);
+        res.setTime(nameByCode + " " + "第" + res.getDayTime() + "节");
+        return Result.success(res);
+    }
 }

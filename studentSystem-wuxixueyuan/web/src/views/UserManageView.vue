@@ -5,7 +5,7 @@
     </el-button>
     <el-dialog
         v-model="centerDialogVisible"
-        title="开课信息"
+        title="添加用户"
         width="500"
         align-center
     >

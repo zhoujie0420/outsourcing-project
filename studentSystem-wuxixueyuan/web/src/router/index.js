@@ -12,6 +12,8 @@ import CourseView from "@/views/CourseView.vue";
 import RegisterScoreView from "@/views/RegisterScoreView.vue";
 import CourseSelectionView from "@/views/CourseSelectionView.vue";
 import MessageView from "@/views/MessageView.vue";
+import CourseInfoView from "@/views/CourseInfoView.vue";
+
 const routes = [
   {
     path: "/",
@@ -41,6 +43,14 @@ const routes = [
     path: "/Monitor/",
     name: "monitor",
     component: MonitorView,
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/Course/:courseId/",
+    name: "course_info",
+    component: CourseInfoView,
     meta: {
       requestAuth: true,
     }

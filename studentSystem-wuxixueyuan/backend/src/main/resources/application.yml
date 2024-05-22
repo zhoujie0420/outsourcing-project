@@ -13,9 +13,9 @@ spring:
     name: graduation
   #rabbitmq配置
   datasource:
-    url: jdbc:mysql://sh-cynosdbmysql-grp-38086q0k.sql.tencentcdb.com:26809/zhoutwo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
+    url: jdbc:mysql://sh-cynosdbmysql-grp-p4rdvlw0.sql.tencentcdb.com:22004/zhoutwo?serverTimezone=Asia/Shanghai&useUnicode=true&characterEncoding=utf-8
     username: root
-    password: Fan20011001
+    password: Zhoujie0420
     driver-class-name: com.mysql.cj.jdbc.Driver
     hikari:
       max-lifetime: 120000

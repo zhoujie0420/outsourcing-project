@@ -39,4 +39,13 @@ public class User {
     @TableField(exist = false)
     @ExcelProperty("成绩")
     private String score;
+
+    @ExcelIgnore
+    private String introduction;
+
+    @ExcelIgnore
+    private String office;
+
+    @ExcelIgnore
+    private String college;
 }

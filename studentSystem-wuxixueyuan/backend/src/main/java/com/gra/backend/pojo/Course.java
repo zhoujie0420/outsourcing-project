@@ -1,5 +1,6 @@
 package com.gra.backend.pojo;
 
+import com.alibaba.excel.annotation.ExcelIgnore;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
@@ -32,4 +33,8 @@ public class Course implements Serializable {
     //选课退课状态
     @TableField(exist = false)
     private Integer studentCourseState;
+    private String info;
+    private String address;
+    private String classCycle;
+
 }

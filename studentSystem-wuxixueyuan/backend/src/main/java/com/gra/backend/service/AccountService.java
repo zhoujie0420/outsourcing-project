@@ -115,5 +115,13 @@ public class AccountService {
         userMapper.updateById(newUser);
         return Result.success();
     }
+
+    public Result<?> getTeaByCourseId(Course course) {
+        LambdaQueryWrapper<Course> courseLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        courseLambdaQueryWrapper.eq(Course::getId, course.getId());
+        Course course1 = courseMapper.selectOne(courseLambdaQueryWrapper);
+        User user = userMapper.selectById(course1.getTeacherId());
+        return Result.success(user);
+    }
 }
 

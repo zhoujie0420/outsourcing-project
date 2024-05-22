@@ -29,8 +29,12 @@ public class CourseController {
 
 
     @GetMapping("getCourseList")
-    public Result<?> getAppointmentsOfDoctor() {
+    public Result<?> getCourseList() {
         return courseService.getCourseList();
+    }
+    @PostMapping("getCourseById")
+    public Result<?> getCourseById(Course course) {
+        return courseService.getCourseById(course);
     }
 
     @GetMapping("getCourseSchedule")
