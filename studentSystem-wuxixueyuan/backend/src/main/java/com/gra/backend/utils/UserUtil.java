@@ -6,8 +6,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * @author lele
- * @create 2022-08-31 14:56
  */
 public class UserUtil {
     public static User getUser() {
