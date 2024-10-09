@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Message表 -->
+<mapper namespace="com.lhqjlb.project.mapper.MessageMapper">
+
+    <!-- 分页查询未删除的Message记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Message">
+        SELECT
+            *
+        FROM
+            message
+        where deletetime = 0
+        <if test="params.keyword != null and params.keyword != ''">
+            <bind name="str1" value="'%' + params.keyword + '%'"/>
+            and (
+            title like #{str1}
+            or content like #{str1}
+            )
+        </if>
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 查询未删除的Message记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Message">
+        SELECT
+            *
+        FROM
+            message
+        where deletetime = 0
+        <if test="shopid != null ">
+           and shopid = #{shopid}
+        </if>
+        <if test="userid != null ">
+            and userid = #{userid}
+        </if>
+        ORDER BY
+            id
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update message
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Message记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Message">
+        SELECT
+            *
+        FROM
+            message
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <select id="listContactUser" resultType="com.lhqjlb.project.entity.Message">
+        SELECT
+        DISTINCT userid
+        FROM
+        message
+        where deletetime = 0
+        <if test="shopid != null ">
+            and shopid = #{shopid}
+        </if>
+    </select>
+
+    <select id="listContactShop" resultType="com.lhqjlb.project.entity.Message">
+        SELECT
+        DISTINCT shopid
+        FROM
+        message
+        where deletetime = 0
+        <if test="userid != null ">
+            and userid = #{userid}
+        </if>
+    </select>
+
+</mapper>

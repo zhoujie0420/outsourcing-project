@@ -1,0 +1,19 @@
+
+        <!-- 使用foreach循环操作多个记录 -->
+        <foreach collection="params.ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+
+        <if test="params.id != null">
+            and id = #{params.id}
+        </if>
+
+        <if test="params.str != null and params.str != ''">
+            and str = #{str}
+        </if>
+
+
+        <if test="params.str != null and params.str != ''">
+            <bind name="str1" value="'%' + params.str + '%'"/>
+            and str like #{str1}
+        </if>

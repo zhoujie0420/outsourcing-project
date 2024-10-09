@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Orderr表 -->
+<mapper namespace="com.lhqjlb.project.mapper.OrderrMapper">
+
+    <!-- 分页查询未删除的Orderr记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Orderr">
+        SELECT
+        orderno
+        FROM
+        orderr
+        where deletetime = 0
+        <if test="params.statuss != null and params.statuss != ''">
+            and statuss = #{params.statuss}
+        </if>
+        <if test="params.orderno != null and params.orderno != ''">
+            and orderno = #{params.orderno}
+        </if>
+        <if test="params.userid != null">
+            and userid = #{params.userid}
+        </if>
+        <if test="params.shopid != null">
+            and shopid = #{params.shopid}
+        </if>
+        group by orderno
+    </select>
+
+    <!-- 查询未删除的Orderr记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Orderr">
+        SELECT
+        *
+        FROM
+        orderr
+        where deletetime = 0
+        <if test="orderno != null and orderno != ''">
+            and orderno = #{orderno}
+        </if>
+        ORDER BY
+        id DESC
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update orderr
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Orderr记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Orderr">
+        SELECT
+        *
+        FROM
+        orderr
+        where deletetime = 0
+        ORDER BY
+        id DESC
+    </select>
+
+    <select id="listSalesVolume" resultType="cn.hutool.core.lang.Dict">
+        select sum(cnt) as total,medicineid,namee
+        from orderr
+        where deletetime = 0
+        group by medicineid,namee
+    </select>
+
+    <select id="listSalesRevenue" resultType="cn.hutool.core.lang.Dict">
+        select sum(cnt * price) as total,medicineid,namee
+        from orderr
+        where deletetime = 0
+        and shopid = #{shopid}
+        group by medicineid,namee
+    </select>
+
+    <select id="listEvaluation" resultType="com.lhqjlb.project.entity.Orderr">
+        select *
+        from orderr
+        where deletetime = 0
+        and medicineid = #{medicineid}
+        and showcontent = "是"
+        and evastatus = "已评价"
+    </select>
+
+</mapper>

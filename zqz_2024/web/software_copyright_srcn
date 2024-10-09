@@ -1,0 +1,3375 @@
+
+
+const remote = "123.56.194.88"
+const local = "localhost"
+console.log(remote);
+console.log(local);
+
+
+const url = local
+
+export const apiUrl = `http://${url}:3000`
+export const wsUrl = `${url}`
+
+
+
+module.exports = {
+  presets: [
+    '@vue/cli-plugin-babel/preset'
+  ]
+}
+const { defineConfig } = require('@vue/cli-service')
+module.exports = defineConfig({
+  transpileDependencies: true
+})
+<template>
+  <NavBar />
+  <router-view></router-view>
+</template>
+
+<script>
+import NavBar from './components/navbar/NavBar.vue'
+import "bootstrap/dist/css/bootstrap.min.css"
+import "bootstrap/dist/js/bootstrap"
+
+export default {
+  components: {
+    NavBar
+  },
+  
+}
+</script>
+
+<style>
+body {
+  background-color: #8ad4e1;
+  background-size: cover;
+}
+</style>
+import { createApp } from 'vue'
+import App from './App.vue'
+import router from './router'
+import store from './store'
+import ElementPlus from 'element-plus'
+import vueEsign from 'vue-esign'
+
+import 'element-plus/dist/index.css'
+
+const app = createApp(App)
+
+app.use(ElementPlus).use(vueEsign).use(store).use(router).mount('#app')
+
+
+<template>
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <div class="container">
+      <router-link class="navbar-brand" :to="{name: 'home'}">家庭医生签约管理系统</router-link>
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+          <li class="nav-item">
+            <router-link :class="route_name === 'signing_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'signing_index'}">签约</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link :class="route_name === 'consultations_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'consultations_index'}">医疗记录</router-link>
+          </li>
+          <li class="nav-item">
+            <router-link :class="route_name === 'reserve_index' ? 'nav-link active' : 'nav-link'" :to="{name: 'reserve_index'}">预约挂号</router-link>
+          </li>
+        </ul>
+        <ul class="navbar-nav" v-if="$store.state.user.is_login">
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              {{ $store.state.user.username }} / {{$store.state.user.role === 1 ? '患者' : ($store.state.user.role === 2 ? '医生' : ($store.state.user.role === 3 ? '管理医院' : '')) }}
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="#" @click="logout">退出</a></li>
+            </ul>
+          </li>
+        </ul>
+        <ul class="navbar-nav" v-else-if="!$store.state.user.pulling_info">
+          <li class="nav-item">
+            <router-link class="nav-link" :to="{name: 'user_account_login' }" role="button">
+              登录
+            </router-link>
+          </li>
+          <li class="nav-item">
+            <router-link class="nav-link" :to="{name: 'user_account_register'}" role="button">
+              注册
+            </router-link>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  </template>
+  
+  <script>
+  import { useRoute } from 'vue-router'
+  import { computed } from 'vue'
+  import { useStore } from 'vuex';
+  
+  export default {
+      setup() {
+          const store = useStore();
+          const route = useRoute();
+          let route_name = computed(() => route.name)
+          const logout = () => {
+            store.dispatch("logout");
+          }
+  
+          return {
+              route_name,
+              logout
+          }
+      }
+  }
+  </script>
+  
+  <style scoped>
+  
+  </style><template>
+    <ul class="nav nav-tabs" style="margin-top: 15px; margin-left: 20px">
+      <li class="nav-item">
+        <router-link
+          :class="route_name == 'myspace_posts' ? 'nav-link active' : 'nav-link'"
+          :to="{ name: 'myspace_posts' }"
+          >动态</router-link
+        >
+      </li>
+  
+      <li class="nav-item">
+        <router-link
+          :class="route_name == 'myspace_bots' ? 'nav-link active' : 'nav-link'"
+          :to="{ name: 'myspace_bots' }"
+          >我的Bots</router-link
+        >
+      </li>
+    </ul>
+  </template>
+  
+  <script>
+  import { useRoute } from 'vue-router'
+  import { computed } from 'vue'
+  export default {
+    name: "MyspaceNavBar",
+    setup () {
+      const route = useRoute();
+      let route_name = computed(() => route.name);
+      return {
+        route_name,
+      }
+    },
+  }
+  </script>
+  
+  <style scoped>
+  .nav-link {
+    color: #337ab7;
+  }
+  </style>
+  <template>
+    <div class="container content-field">
+        <div class="card">
+            <div class="card-body">
+                <slot></slot>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script>
+
+</script>
+
+<style scoped>
+div.content-field {
+    margin-top: 20px;
+}
+</style><template>
+    <div class="card">
+      <div class="body-card">
+          <div class="card-body" v-if="isme">
+            有什么新鲜事想告诉大家！快去发帖吧！
+          </div>
+        <div v-for="post in posts.posts" :key="post.id">
+          <div class="card single-post">
+            <div class="card-body">
+              {{ post.content }}
+              <button
+                v-if="isme"
+                type="button"
+                class="btn"
+                style="
+                  background-color: #d9534f;
+                  color: white;
+                  border-style: none;
+                  float: right;
+                "
+                data-bs-toggle="modal"
+                data-bs-target="#delete_notice"
+                @click="confirm_delete_post_id(post.id)"
+              >
+                删除
+              </button>
+  
+              <div
+                class="modal fade"
+                id="delete_notice"
+                tabindex="-1"
+                aria-labelledby="exampleModalLabel"
+                aria-hidden="true"
+              >
+                <div class="modal-dialog modal-dialog-centered">
+                  <div
+                    class="modal-content"
+                    style="background-color: white; width: 340px; margin: 0 auto"
+                  >
+                    <div class="modal-header">
+                      <img
+                        src="https://cdn.acwing.com/media/article/image/2022/09/02/36510_233881192a-热门.png"
+                        alt="警告!"
+                        style="height: 20px; margin: 0 auto"
+                      />
+                    </div>
+                    <div
+                      class="modal-body notice_msg"
+                      style="margin: 0 auto; color: #838383"
+                    >
+                      你确定删除吗？
+                    </div>
+                    <div class="modal-footer" style="margin: 0 auto">
+                      <button
+                        type="button"
+                        class="btn delete_cancel"
+                        data-bs-dismiss="modal"
+                        style="background-color: #f0f0f0; border-style: none"
+                      >
+                        取消
+                      </button>
+                      <button
+                        type="button"
+                        class="btn delete_confrim"
+                        style="
+                          background-color: #d9534f;
+                          color: white;
+                          border-style: none;
+                        "
+                        @click="delete_a_post()"
+                      >
+                        删除
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  import { useStore } from "vuex";
+  import $ from "jquery";
+  import { Modal } from 'bootstrap/dist/js/bootstrap'
+  import { ref } from 'vue'
+  import {apiUrl} from "../../../config";
+  export default {
+    name: "UserProfilePosts",
+    props: {
+      posts: {
+        type: Object,
+        required: true,
+      },
+      isme: {
+        type: Boolean,
+        required: true,
+      },
+    },
+  
+    setup (props, context) {
+      let delete_post_id = ref("");
+      const store = useStore();
+  
+      const confirm_delete_post_id = (id) => {
+        delete_post_id.value = id;
+      }
+  
+      const delete_a_post = () => {
+        $.ajax({
+          url: `${apiUrl}/api/user/post/remove`,
+          type: "post",
+          data: {
+            id: delete_post_id.value,
+          },
+          headers: {
+            Authorization: "Bearer " + store.state.user.token,
+          },
+          success (resp) {
+            Modal.getInstance("#delete_notice").hide();
+            if (resp.error_message == "success") {
+              context.emit("delete_a_post");
+            }
+          },
+        });
+      };
+      return {
+        delete_a_post,
+        confirm_delete_post_id,
+      };
+    },
+  };
+  </script>
+  
+  <style scoped>
+  button:hover {
+    scale: 1.1;
+  }
+  .single-post {
+    margin: 15px;
+  }
+  </style>
+  
+<template>
+    <div class="card edit-filed">
+      <div class="card-body">
+        <div class="mb-3">
+          <label
+            for="edit"
+            class="form-label"
+            style="font-weight: 400; color: gray; user-select: none"
+            >创建帖子</label
+          >
+          <textarea
+            v-model="content"
+            class="form-control"
+            id="edit"
+            rows="2"
+            style="border-color: #ff8200"
+            placeholder="有什么新鲜事想分享给大家?"
+          >
+          </textarea>
+  
+          <div
+            class="modal fade"
+            id="blank_notice"
+            tabindex="-1"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+          >
+            <div class="modal-dialog modal-dialog-centered">
+              <div
+                class="modal-content"
+                style="background-color: white; width: 340px; margin: 0 auto"
+              >
+                <div class="modal-header">
+                  <img
+                    src="https://cdn.acwing.com/media/article/image/2022/09/02/36510_233881192a-热门.png"
+                    alt="警告!"
+                    style="height: 20px; margin: 0 auto"
+                  />
+                </div>
+                <div
+                  class="modal-body notice_msg"
+                  style="margin: 0 auto; color: #838383"
+                >
+                  发帖内容不能为空~
+                </div>
+                <div class="modal-footer" style="margin: 0 auto">
+                  <button
+                    type="button"
+                    class="btn"
+                    data-bs-dismiss="modal"
+                    style="background-color: #f0f0f0; border-style: none"
+                  >
+                    确认
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+  
+        <button type="button" @click="post_a_post" class="btn btn-primary btn-sm">
+          发贴
+        </button>
+  
+        <button
+          hidden
+          data-bs-toggle="modal"
+          data-bs-target="#blank_notice"
+          id="btn-blank"
+        ></button>
+      </div>
+    </div>
+  </template>
+  
+  <script>
+  import $ from "jquery";
+  import { useStore } from "vuex";
+  import { useRouter, useRoute } from 'vue-router'
+  import { computed, inject, ref } from 'vue'
+  import {apiUrl} from "../../../config";
+  export default {
+    name: "UserProfileWrite",
+    setup () {
+      const store = useStore();
+      const router = useRouter();
+      const route = useRoute();
+      let content = ref("");
+      let route_name = computed(() => route.name);
+      const refresh = inject("reload");
+      const post_a_post = () => {
+        console.log(content.value);
+        if (content.value === "") {
+          $('#btn-blank').click();
+          return false;
+        }
+        $.ajax({
+          url: `${apiUrl}/api/user/post/add`,
+          type: "post",
+          data: {
+            content: content.value,
+          },
+          headers: {
+            Authorization: "Bearer " + store.state.user.token,
+          },
+          success (resp) {
+            if (resp.error_message ==="success") {
+              content.value = "";
+              if (route_name.value !== "myspace_posts" && route_name.value !== "myspace_index") {
+                router.push({ name: "myspace_posts" });
+              } else {
+                refresh();
+              }
+            }
+          },
+        });
+      };
+      return {
+        content,
+        post_a_post,
+      };
+    },
+  };
+  </script>
+  
+  <style scoped>
+  .edit-filed {
+    margin-top: 10px;
+  }
+  
+  button:hover {
+    scale: 1.1;
+  }
+  </style>
+  <template>
+  <div class="card" style="margin-top: 20px">
+    <div class="card-body">
+      <button hidden data-bs-toggle="modal" data-bs-target="#change_avatar" id="btn-blank-avatar"></button>
+      <p class="pic">
+        <img :src="$store.state.user.photo" style="
+                          width: 100%;
+                          cursor: pointer;
+                          position: absolute;
+                          top: 0;
+                          left: 0;
+                          height: 100%;
+                        " @click="change_avatar()" />
+      </p>
+
+      <hr />
+      <div class="info-username">
+        {{ $store.state.user.username }}
+      </div>
+      <hr />
+      <div class="info-username">
+        {{ $store.state.user.email }}
+      </div>
+
+      <div class="modal fade" id="change_avatar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+          <div class="modal-content" style="background-color: white; width: 500px; margin: 0 auto">
+            <div class="modal-header" style="font-weight: bold">
+              Update Photo
+            </div>
+            <div class="modal-body avatar-info">
+              <img :src="$store.state.user.photo" style="
+                                width: 100px;
+                                height: 100px;
+                                border-radius: 50px;
+                                margin-left: 15px;
+                              " />
+
+              <div class="avatar-info-input col-8" style="margin-left: 35px">
+
+                <input accept="image/*" name="upimage" @change="upload" id="upload_file" type="file">
+              </div>
+            </div>
+            <div class="avatar-msg">{{ avatar_msg }}</div>
+            <div class="modal-footer" style="margin: 0 auto">
+              <button type="button" class="btn" style="
+                                background-color: #198754;
+                                border-style: none;
+                                color: white;
+                              " @click="update_avatar()">
+                确认
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+  </div>
+</template>
+  
+<script>
+import { ref } from "vue";
+import { Modal } from 'bootstrap/dist/js/bootstrap'
+import $ from 'jquery'
+import { useStore } from 'vuex'
+import {apiUrl} from "../../../config";
+export default {
+  setup() {
+    const store = useStore();
+    let avatar_msg = ref("");
+    let avatar_url = ref("");
+    var form = {
+      img: ""
+    }
+
+
+
+    const upload = (e) => {
+      let file = e.target.files[0];
+      let param = new FormData();
+      console.log(file);
+      //通过append向form对象添加数据
+      param.append("file", file);
+
+
+      $.ajax({
+        url: `${apiUrl}/api/aliyun/oss/uploadImages`,
+        type: "post",
+        data: param,
+        processData: false,
+        contentType: false,
+        headers: {
+          "Authorization": "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          console.log(resp);
+          avatar_url = resp
+        },
+      })
+    }
+
+
+    const change_avatar = () => {
+      $('#btn-blank-avatar').click();
+    }
+    const update_avatar = () => {
+      console.log(avatar_url);
+
+      $.ajax({
+        url: `${apiUrl}/api/user/account/photo`,
+        type: "post",
+        data: {
+          photo: avatar_url,
+        },
+        headers: {
+          "Authorization": "Bearer " + store.state.user.token,
+        },
+        success(resp) {
+          if (resp.error_message === "success") {
+            store.commit("updatePhoto", avatar_url);
+            avatar_url = "";
+            Modal.getInstance('#change_avatar').hide();
+          } else {
+            console.log(resp.error_message);
+            avatar_msg.value = resp.error_message;
+            setTimeout(() => {
+              avatar_msg.value = "";
+            }, 2000);
+          }
+        },
+      })
+    }
+    return {
+      change_avatar,
+      update_avatar,
+      avatar_msg,
+      avatar_url,
+      form,
+      upload,
+    };
+  }
+}
+</script>
+  
+<style scoped>
+.info-username {
+  text-align: center;
+  font-weight: bold;
+}
+
+.info-reputation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  text-align: center;
+  font-family: Hiragino Sans GB, Microsoft YaHei, Arial, sans-serif;
+  font-size: 13px;
+}
+
+.info-reputation-follow {
+  width: 50%;
+  cursor: pointer;
+}
+
+.info-reputation-fans {
+  width: 50%;
+  cursor: pointer;
+}
+
+.info-reputation-name {
+  color: #99a2aa;
+}
+
+.info-reputation-cnt {
+  color: #222222;
+}
+
+.info-reputation-follow:hover .info-reputation-name {
+  color: #00a1d6;
+}
+
+.info-reputation-follow:hover .info-reputation-cnt {
+  color: #00a1d6;
+}
+
+.info-reputation-fans:hover .info-reputation-name {
+  color: #00a1d6;
+}
+
+.info-reputation-fans:hover .info-reputation-cnt {
+  color: #00a1d6;
+}
+
+a {
+  text-decoration: none;
+}
+
+.avatar-info {
+  display: flex;
+  align-items: center;
+}
+
+button:hover {
+  scale: 1.1;
+}
+
+.avatar-msg {
+  position: absolute;
+  top: 65%;
+  left: 34%;
+  font-size: 14px;
+  color: #c3404b;
+}
+
+.pic {
+  position: relative;
+  width: 100%;
+  /*相当于100px*/
+  padding-top: 100%;
+  /*相当于100px.这是比较关键的一步，margin和padding是相对于其父元素的宽度的100%*/
+}
+</style>
+  <template>
+    <div class="box container">
+    <div class="pre-box">
+      <h1>Sign Up</h1>
+      <p>JOIN US!</p>
+    </div>
+
+    <div class="select-login">
+
+    </div>
+
+    <div class="login-form" >
+      <div class="title-box">
+        <h1 class="form-h1-text bounce-top">注册</h1>
+      </div>
+      
+      <div class="input-box">
+        <input v-model="username" type="text" placeholder="用户名" />
+        <input v-model="password" type="password" placeholder="密码" />
+        <input v-model="confirmedPassword" type="password" placeholder="确认密码" />
+      </div>
+      <div class="login-error-msg">{{ error_message }}</div>
+      <div class="btn-box">
+        <button class="newbutton" @click="register()">注册</button>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script>
+import { ref } from 'vue'
+import router from '../router'
+import $ from 'jquery'
+import {apiUrl} from "../../config";
+
+export default {
+    components: {
+
+    },
+    setup() {
+        let username = ref('');
+        let email = ref('');
+        let password = ref('');
+        let confirmedPassword = ref('');
+        let error_message = ref('');
+
+        const register = () => {
+            $.ajax({
+                url: `${apiUrl}/api/user/account/register/`,
+                type: "post",
+                data: {
+                    username: username.value,
+                    email: email.value,
+                    password: password.value,
+                    confirmedPassword: confirmedPassword.value,
+                },
+                success(resp) {
+                    if (resp.code === 200) {
+                        router.push({name: "user_account_login"});
+                    } else {
+                        error_message.value = resp.error_message;
+                    }
+                },
+            });
+        }
+
+        return {
+            username,
+            password,
+            email,
+            confirmedPassword,
+            error_message,
+            register,
+        }
+    }
+}
+</script>
+
+<style scoped>
+button {
+  width: 100%;
+}
+
+div.error-message {
+  color: red;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.register-error-msg {
+  position: absolute;
+  top: 40%;
+  font-size: 20px;
+  color: #c3404b;
+  writing-mode: tb-rl;
+  font-family: cursive;
+}
+
+.login-error-msg {
+  position: absolute;
+  top: 40%;
+  /* left: 69%; */
+  writing-mode: tb-rl;
+  font-size: 20px;
+  color: #c3404b;
+  font-family: cursive;
+}
+
+.form-h1-text {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 去除input的轮廓 */
+input {
+  outline: none;
+}
+
+.box {
+  height: 100%;
+}
+
+.box {
+  overflow-x: hidden;
+  display: flex;
+  background: linear-gradient(to right, rgb(247, 209, 215), rgb(191, 227, 241));
+}
+
+span {
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  border-radius: 50%;
+  /* 径向渐变 */
+  background: radial-gradient(circle at 72% 28%,
+      #fff 3px,
+      #ff7edf 8%,
+      #5b5b5b,
+      #aad7f9 100%);
+  /* 动画 */
+  animation: myMove 4s linear infinite;
+}
+
+@keyframes myMove {
+  0% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(10%, -1000%);
+  }
+
+  75% {
+    transform: translate(-20%, -1200%);
+  }
+
+  99% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translateY(-1800%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.box {
+  width: 1050px;
+  height: 600px;
+  display: flex;
+  position: relative;
+  top: 50px;
+  z-index: 2;
+  margin: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 2px 1px 19px rgba(0, 0, 0, 0.1);
+}
+
+.pre-box {
+  width: calc(1050px / 2);
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 99;
+  border-radius: 4px;
+  background-color: #edd4dc;
+  box-shadow: 2px 1px 19px rgba(0, 0, 0, 0.1);
+  transition: 0.5s ease-in-out;
+}
+
+.pre-box h1 {
+  margin-top: 150px;
+  text-align: center;
+  letter-spacing: 5px;
+  color: white;
+  user-select: none;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pre-box p {
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  margin: 20px 0;
+  user-select: none;
+  font-weight: bold;
+  color: white;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-box {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  border-radius: 50%;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-box img {
+  width: 100%;
+  transition: 0.5s;
+}
+
+.login-form,
+.select-login {
+  flex: 1;
+  height: 100%;
+}
+
+.title-box {
+  height: 300px;
+  line-height: 500px;
+}
+
+.title-box h1 {
+  text-align: center;
+  color: white;
+  user-select: none;
+  letter-spacing: 5px;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input {
+  width: 60%;
+  height: 40px;
+  margin-bottom: 20px;
+  text-indent: 10px;
+  border: 1px solid #fff;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 120px;
+  backdrop-filter: blur(10px);
+}
+
+input:focus::placeholder {
+  opacity: 0;
+}
+
+h1 {
+  display: block;
+  font-size: 2em;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+.btn-box {
+  display: flex;
+  justify-content: center;
+}
+
+.newbutton {
+  width: 100px;
+  height: 30px;
+  margin: 0 7px;
+  line-height: 30px;
+  border: none;
+  border-radius: 4px;
+  background-color: #69b3f0;
+  color: white;
+}
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+  -webkit-animation: wobble-hor-bottom 0.8s both;
+  animation: wobble-hor-bottom 0.8s both;
+}
+
+.btn-box p {
+  height: 30px;
+  line-height: 30px;
+  user-select: none;
+  font-size: 14px;
+  color: #426277;
+}
+
+.btn-box p:hover {
+  cursor: pointer;
+  border-bottom: 1px solid #426277;
+}
+
+.bounce-top {
+  -webkit-animation: bounce-top 0.9s both;
+  animation: bounce-top 0.9s both;
+}
+
+@-webkit-keyframes bounce-top {
+  0% {
+    -webkit-transform: translateY(-45px);
+    transform: translateY(-45px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  40% {
+    -webkit-transform: translateY(-24px);
+    transform: translateY(-24px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  65% {
+    -webkit-transform: translateY(-12px);
+    transform: translateY(-12px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  82% {
+    -webkit-transform: translateY(-6px);
+    transform: translateY(-6px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  93% {
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  25%,
+  55%,
+  75%,
+  87% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-top {
+  0% {
+    -webkit-transform: translateY(-45px);
+    transform: translateY(-45px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  40% {
+    -webkit-transform: translateY(-24px);
+    transform: translateY(-24px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  65% {
+    -webkit-transform: translateY(-12px);
+    transform: translateY(-12px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  82% {
+    -webkit-transform: translateY(-6px);
+    transform: translateY(-6px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  93% {
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  25%,
+  55%,
+  75%,
+  87% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes wobble-hor-bottom {
+
+  0%,
+  100% {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+  }
+
+  15% {
+    -webkit-transform: translateX(-30px) rotate(-6deg);
+    transform: translateX(-30px) rotate(-6deg);
+  }
+
+  30% {
+    -webkit-transform: translateX(15px) rotate(6deg);
+    transform: translateX(15px) rotate(6deg);
+  }
+
+  45% {
+    -webkit-transform: translateX(-15px) rotate(-3.6deg);
+    transform: translateX(-15px) rotate(-3.6deg);
+  }
+
+  60% {
+    -webkit-transform: translateX(9px) rotate(2.4deg);
+    transform: translateX(9px) rotate(2.4deg);
+  }
+
+  75% {
+    -webkit-transform: translateX(-6px) rotate(-1.2deg);
+    transform: translateX(-6px) rotate(-1.2deg);
+  }
+}
+
+@keyframes wobble-hor-bottom {
+
+  0%,
+  100% {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+  }
+
+  15% {
+    -webkit-transform: translateX(-30px) rotate(-6deg);
+    transform: translateX(-30px) rotate(-6deg);
+  }
+
+  30% {
+    -webkit-transform: translateX(15px) rotate(6deg);
+    transform: translateX(15px) rotate(6deg);
+  }
+
+  45% {
+    -webkit-transform: translateX(-15px) rotate(-3.6deg);
+    transform: translateX(-15px) rotate(-3.6deg);
+  }
+
+  60% {
+    -webkit-transform: translateX(9px) rotate(2.4deg);
+    transform: translateX(9px) rotate(2.4deg);
+  }
+
+  75% {
+    -webkit-transform: translateX(-6px) rotate(-1.2deg);
+    transform: translateX(-6px) rotate(-1.2deg);
+  }
+}
+
+.thrid-party-login {
+  margin-top: 2vh;
+  text-align: center;
+  font-size: 14px;
+  user-select: none;
+}
+
+.thrid-party-login>p>img {
+  height: 4vh;
+  margin-right: 1vw;
+  cursor: pointer;
+}
+.location {
+  margin-left: 36%;
+  justify-content: center;
+}
+.btn-location {
+  margin-top: 40px;
+}
+</style><template>
+  <ContentField>
+    <table class="table table-striped table-hover" style="text-align: center">
+      <thead>
+        <tr>
+          <th>{{ $store.state.user.role === 1 ? '医生姓名' : '患者姓名' }}</th>
+          <th>更新时间</th>
+          <th>签约文档</th>
+          <th>状态</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="record in signRecords" :key="record.id">
+          <td>{{ record.otherName }}</td>
+          <td>{{ record.createTime }}</td>
+          <td @click="redirectToUrl(record.docUrl)">
+            {{ record.docUrl === null ? '待上传' : '点击查看' }}
+          </td>
+          <td>
+            {{
+              record.docUrl === null
+                ? '未开启签约流程'
+                : record.status === 0
+                ? '待医生确认'
+                : record.status === 1
+                ? '待医院管理员确认'
+                : record.status === 2
+                ? '已完成'
+                : ''
+            }}
+          </td>
+          <td>
+            <div class="custom-file">
+              <div v-if="store.state.user.role === 1">
+                <label :for="'customFile_' + record.id" class="custom-file-upload">
+                  <input type="file" @change="upload(record.id, record.doctorId, $event)" :id="'customFile_' + record.id" style="display: none" />
+                  上传文件
+                </label>
+              </div>
+              <div v-else>
+                <el-button plain @click="goToSignInfo(record.id, record.doctorId, record.docUrl)"> 签字确认 </el-button>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </ContentField>
+</template>
+
+<script>
+export default {
+  name: 'App',
+  data() {
+    return {
+      lineWidth: 6,
+      lineColor: '#000000',
+      bgColor: '',
+      resultImg: '',
+      isCrop: false
+    };
+  },
+  methods: {
+    handleReset() {
+      this.$refs.resign.reset();
+    },
+    handleGenerate() {
+      this.$refs.esign
+        .generate()
+        .then(res => {
+          this.resultImg = res;
+        })
+        .catch(err => {
+          alert(err); // 画布没有签字时会执行这里 'Not Signned'
+        });
+    }
+  }
+};
+</script>
+<script setup>
+import ContentField from '../components/ContentField.vue';
+import { ref } from 'vue';
+import store from '@/store';
+import $ from 'jquery';
+import { apiUrl } from '../../config';
+import router from '@/router';
+
+const signRecords = ref([]); // 创建响应式的userInfos
+
+function goToSignInfo(id, doctorId, docUrl) {
+  router.push({ name: 'sign_info_view', query: { id: id, doctorId: doctorId, docUrl } });
+}
+
+function upload(id, doctorId, e) {
+  let file = e.target.files[0];
+  let param = new FormData();
+  param.append('file', file);
+  $.ajax({
+    url: `${apiUrl}/api/aliyun/oss/upload`,
+    type: 'post',
+    data: param,
+    processData: false,
+    contentType: false,
+    headers: {
+      Authorization: 'Bearer ' + store.state.user.token
+    },
+    success(resp) {
+      updateDocUrl(id, doctorId, resp);
+    }
+  });
+}
+
+getSigns();
+
+function updateDocUrl(id, doctorId, url) {
+  $.ajax({
+    url: `${apiUrl}/api/signing/updateSigning/`,
+    type: 'post',
+    data: {
+      id: id,
+      docUrl: url,
+      doctorId: doctorId
+    },
+    headers: {
+      Authorization: 'Bearer ' + store.state.user.token
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        getSigns();
+      }
+    }
+  });
+}
+
+function redirectToUrl(url) {
+  if (url !== null) {
+    window.open(url, '_blank');
+  }
+}
+
+function getSigns() {
+  $.ajax({
+    url: `${apiUrl}/api/signing/getSigning/`,
+    type: 'post',
+    headers: {
+      Authorization: 'Bearer ' + store.state.user.token
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        signRecords.value = resp.data; // 更新userInfos的值
+      } else {
+        console.log(resp.message);
+      }
+    }
+  });
+}
+</script>
+
+<style scoped>
+.custom-file-upload {
+  display: inline-block;
+  padding: 2px 15px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style>
+  <template>
+     <ContentField class="body-base" >
+    <div class="row">
+      <div
+        class="alert alert-info alert-dismissible fade show col-11"
+        role="alert"
+        style="margin-left: 3.5vw"
+      >
+        家庭医生签约管理系统团队提醒您：请勿轻信他人的信息，谨防上当受骗！
+        <button
+          type="button"
+          class="btn-close small"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-11 desc">
+        <div class="desc-title">什么是家庭医生签约管理系统</div>
+
+        <div class="desc-simple-content">
+          &nbsp;&nbsp;&nbsp;&nbsp;帮助医生和患者更好的沟通，提供更好的医疗服务。
+        </div>
+        <hr />
+        <div class="desc-title">如何使用家庭医生签约管理系统</div>
+        <div class="desc-how-ans">
+          &nbsp;&nbsp;&nbsp;&nbsp;家庭医生签约管理系统是一个在线医疗服务平台，您可以通过注册账号，登录后，选择和需要的医生进行签约，签约完成后，医生可以管理你的病例，为你提供更好的医疗服务。
+        </div>
+        <hr />
+
+      </div>
+    </div>
+  </ContentField>
+
+  </template>
+  
+  <script>
+import ContentField from '../components/ContentField.vue'
+import router from "@/router";
+import { useStore } from "vuex";
+export default {
+  components: {
+    ContentField,
+  },
+  setup(){
+    const store = useStore();
+    
+    const jwt_token = localStorage.getItem("jwt_token");
+        if (jwt_token) {
+            store.commit("updateToken", jwt_token);
+            store.dispatch("getInfo", {
+                success() {
+                    router.push({ name: "home" });
+                    store.commit("updatePullingInfo", false);
+                },
+                error() {
+                    store.commit("updatePullingInfo", false);
+                }
+            })
+        } else {
+            store.commit("updatePullingInfo", false);
+        }
+
+  }
+}
+
+  </script>
+  
+  <style scoped>
+  a {
+    font-weight: bold;
+    text-decoration: none;
+    color: rgb(132, 183, 200);
+  }
+  .desc {
+    height: 64vh;
+    margin-top: 1vh;
+    /* margin-left: 4vh; */
+    margin-left: 3.4vw;
+    border-radius: 2vh;
+    border: 1px solid rgb(211, 217, 224);
+    box-shadow: 2px 2px 10px lightgray;
+  }
+  .desc-title {
+    text-align: center;
+    margin-top: 1vh;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .desc-simple-content {
+    font-size: 16px;
+    margin-top: 2vh;
+  }
+  .desc-how {
+    text-align: center;
+    margin-top: 1vh;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  .desc-how-ans {
+    font-size: 16px;
+    margin-top: 2vh;
+  }
+  .desc-how-ans > div {
+    padding: 0.3vh;
+  }
+  span {
+    font-weight: bold;
+  }
+  .how-fix-bug {
+    margin-top: 2vh;
+    font-size: 16px;
+  }
+  .how-fix-bug > div {
+    padding-top: 1vh;
+  }
+
+
+  .information-title {
+  color: #19d3ea;
+  font-size: 18px;
+  cursor: pointer;  /*鼠标悬停变小手*/
+  width: 100%;
+  }
+  </style>
+  <template>
+  <ContentField>
+    <div class="row align-items-center">
+      <div class="col-auto">
+        <label for="datePicker" class="form-label">选择日期:</label>
+      </div>
+      <div class="col-auto"> <!-- 修改此处，使用col-auto以适应内容宽度 -->
+        <input type="date" class="form-control" id="datePicker" v-model="selectedDate" style="width: 160px;"> <!-- 添加内联样式调整宽度 -->
+      </div>
+    </div>
+
+    <div v-if="store.state.user.role === 3">
+      <el-table :data="doctorRecords" style="width: 100%">
+        <el-table-column prop="otherName" label="患者姓名" width="280" />
+        <el-table-column prop="otherNameTwo" label="医生姓名" width="280" />
+        <el-table-column prop="appointmentDate" label="预约日期" width="240" />
+        <el-table-column prop="timeSlot" label="预约时间"  :formatter="formatTimeSlot" width="240" />
+      </el-table>
+    </div>
+
+    <div v-if="store.state.user.role === 2">
+      <el-table :data="doctorRecords" style="width: 100%">
+        <el-table-column prop="otherName" label="患者姓名" width="300" />
+        <el-table-column prop="appointmentDate" label="预约日期" width="240" />
+        <el-table-column prop="timeSlot" label="预约时间"  :formatter="formatTimeSlot" width="240" />
+        <el-table-column label="操作" width="120">
+          <template #default="scope">
+            <el-button link type="primary" size="small" @click="handleClick(scope.row.id)">上级医院处理</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+
+    <div v-if="store.state.user.role === 1">
+      <el-table :data="doctorRecords" :border="parentBorder" style="width: 100%" @expand-change="row => getAppointmentInfo(row.otherId)">
+        <el-table-column type="expand">
+          <table class="table table-striped table-hover" style="text-align: left;">
+            <thead>
+            <tr>
+              <th>预约时间</th>
+              <th>状态</th>
+              <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="(record) in AppointmentRecords" :key="record.id">
+              <td>{{ record.timeSlot + 8}}:00 - {{record.timeSlot + 9}}:00</td>
+              <td>{{ record.status === 1 ? '已预约': record.status === 2 ? '上级医院处理' :'未预约' }}</td>
+              <td>
+                <el-button type="primary" size="small" v-if="record.status !== 0" >已被预约</el-button>
+                <el-button type="success" size="small" @click="addAppointment(record.doctorId,record.timeSlot)" v-else> 预约</el-button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </el-table-column>
+        <el-table-column label="医生姓名" prop="otherName" />
+        <el-table-column label="部门" prop="departmentName" />
+        <el-table-column label="部门描述" prop="departmentDes" />
+      </el-table>
+    </div>
+  </ContentField>
+</template>
+
+<script setup>
+import ContentField from '../components/ContentField.vue';
+import {ref} from "vue";
+import store from "@/store";
+import $ from 'jquery';
+import {apiUrl} from "../../config";
+
+const doctorRecords = ref([]); // 创建响应式的userInfos
+const AppointmentRecords = ref([]); // 创建响应式的userInfos
+const selectedDate = ref(new Date().toISOString().slice(0, 10)); // 初始化日期选择器的值
+
+getAppointmentUsers()
+
+function formatTimeSlot(row){
+  return (row.timeSlot + 8) + ':00 - ' + (row.timeSlot + 9) + ':00'
+}
+
+function handleClick(id) {
+  $.ajax({
+    url: `${apiUrl}/api/user/appointment/updateAppointment/`,
+    type: "post",
+    data: {
+      id: id
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        console.log("处理成功")
+        getAppointmentUsers()
+      }
+    },
+  });
+}
+function addAppointment(doctorId,timeSlot) {
+  $.ajax({
+    url: `${apiUrl}/api/user/appointment/addAppointment/`,
+    type: "post",
+    data: {
+      doctorId: doctorId,
+      timeSlot: timeSlot,
+      appointmentDate: selectedDate.value
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        console.log("预约成功")
+        getAppointmentInfo(doctorId,selectedDate)
+      } else {
+        console.log("预约失败")
+      }
+    },
+  });
+}
+function getAppointmentUsers() {
+  $.ajax({
+    url: `${apiUrl}/api/user/appointment/getAppointmentUsers/`,
+    type: "get",
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        console.log(resp.data)
+        doctorRecords.value = resp.data; // 更新userInfos的值
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+}
+
+function getAppointmentInfo(id) {
+  $.ajax({
+    url: `${apiUrl}/api/user/appointment/getAppointmentsOfDoctor/`,
+    type: "post",
+    data: {
+      id: id,
+      date: selectedDate.value
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        AppointmentRecords.value = resp.data; // 更新userInfos的值
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+}
+</script>
+
+<style scoped>
+.custom-file-upload {
+  display: inline-block;
+  padding: 2px 15px;
+  border: 2px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+}
+</style><template>
+  <div id="app" class="esign">
+    <div class="esign-box">
+      <vue-esign class="esignature" ref="esign" :width="800" :height="300" :isCrop="isCrop" :lineWidth="lineWidth" :lineColor="lineColor" />
+    </div>
+    <div class="esigh-btns">
+      <button @click="handleReset">清空画板</button>
+      <button @click="handleGenerate">生成图片</button>
+    </div>
+    <!-- <div class="esigh-result">
+      <img v-if="resultImg" :src="resultImg" alt="" />
+    </div> -->
+  </div>
+</template>
+
+<script>
+import router from '@/router';
+import $ from 'jquery';
+import { apiUrl } from '../../config';
+import store from '@/store';
+
+import { PDFDocument } from 'pdf-lib';
+import { ElLoading, ElMessage } from 'element-plus';
+
+function upload(file) {
+  return new Promise(success => {
+    let param = new FormData();
+    param.append('file', file);
+    $.ajax({
+      url: `${apiUrl}/api/aliyun/oss/upload`,
+      type: 'post',
+      data: param,
+      processData: false,
+      contentType: false,
+      headers: {
+        Authorization: 'Bearer ' + store.state.user.token
+      },
+      success
+    });
+  });
+}
+
+function updateDocUrl(id, doctorId, url) {
+  return new Promise(success => {
+    $.ajax({
+      url: `${apiUrl}/api/signing/updateSigning/`,
+      type: 'post',
+      data: {
+        id: id,
+        docUrl: url,
+        doctorId: doctorId
+      },
+      headers: {
+        Authorization: 'Bearer ' + store.state.user.token
+      },
+      success
+    });
+  });
+}
+
+export default {
+  name: 'App',
+  data() {
+    return {
+      lineWidth: 6,
+      lineColor: '#000000',
+      bgColor: '#000000',
+      resultImg: '',
+      isCrop: false
+    };
+  },
+
+  methods: {
+    handleReset() {
+      this.$refs.esign.reset();
+      console.log('111' + this.$route.query.id); // 18
+    },
+    async handleGenerate() {
+      const loading = ElLoading.service({ lock: true, text: 'Loading', background: 'rgba(0, 0, 0, 0.7)' });
+      try {
+        const res = await this.$refs.esign.generate();
+        this.resultImg = res;
+        const arrayBuffer = await fetch(this.$route.query.docUrl).then(res => res.arrayBuffer());
+        const doc = await PDFDocument.load(arrayBuffer);
+        const signImg = await doc.embedPng(res);
+        const page = doc.getPage(doc.getPageCount() - 1);
+        const width = page.getWidth();
+        const height = page.getHeight();
+
+        const sw = width * 0.15;
+        const sh = (sw / 800) * 300;
+        const sx = width * 0.6;
+        if (this.$store.state.user.role === 2) {
+          page.drawImage(signImg, { x: sx, y: height * 0.25, width: sw, height: sh });
+        } else {
+          page.drawImage(signImg, { x: sx, y: height * 0.21, width: sw, height: sh });
+        }
+        const newDoc = await doc.save();
+        const blob = new Blob([newDoc], { type: 'application/pdf' });
+
+        // window.open(URL.createObjectURL(blob));
+        const resp = await upload(new File([blob], 'new.pdf'));
+        await updateDocUrl(this.$route.query.id, this.$route.query.doctorId, resp);
+        const updateSigning = await new Promise(success => {
+          $.ajax({
+            url: `${apiUrl}/api/signing/updateSigning/`,
+            type: 'post',
+            data: {
+              id: this.$route.query.id,
+              doctorId: this.$route.query.doctorId
+            },
+            headers: {
+              Authorization: 'Bearer ' + store.state.user.token
+            },
+            success
+          });
+        });
+        if (updateSigning.code === 200) {
+          ElMessage.success('签名成功');
+          router.push({ name: 'signing_index' });
+        }
+      } catch (err) {
+        ElMessage.error(err);
+      } finally {
+        loading.close();
+      }
+    }
+  }
+};
+</script>
+
+<style scoped>
+.esign {
+  max-width: 1000px;
+  margin: auto;
+  padding: 10px;
+}
+.esigh-btns button {
+  color: #fff;
+  height: 40px;
+  width: 100px;
+  font-size: 16px;
+  margin-right: 10px;
+  outline: none;
+  border-radius: 4px;
+  background: #f60;
+  border: 1px solid transparent;
+}
+.esigh-btns button:active {
+  color: #fff;
+  box-shadow: 0px 0px 50px orangered inset;
+}
+.esigh-result {
+  margin-top: 10px;
+}
+.esigh-result img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid #ececee;
+}
+.esignature {
+  margin: 10px 0;
+  border: 2px solid #ccc;
+}
+</style>
+<template>
+  <div class="box container">
+    <div class="pre-box">
+      <h1>Sign In</h1>
+      <p>JOIN US!</p>
+    </div>
+
+    <div class="select-login">
+
+    </div>
+
+    <div v-if="loginmanner === 1" class="login-form" >
+      <div class="title-box">
+        <h1 class="form-h1-text bounce-top">账号密码登录</h1>
+      </div>
+
+      <div class="input-box">
+        <input v-model="username" type="text" placeholder="用户名" />
+        <input v-model="password" type="password" placeholder="密码" />
+
+      </div>
+      <div class="login-error-msg">{{ error_message }}</div>
+      <div class="btn-box">
+        <button class="newbutton" @click="login()">登录</button>
+      </div>
+    </div>
+
+    <div v-if="loginmanner === 2" class="login-form" >
+      <div class="title-box">
+        <h1 class="form-h1-text bounce-top">邮箱登录</h1>
+      </div>
+      <div class="login-error-msg">{{ email_error_message }}</div>
+      <div class="input-box">
+        <input v-model=" email " type="text" placeholder="邮箱" />
+        <input v-model="code" type="code" placeholder="验证码" />
+
+        <button class="newbutton" @click="getcode()">获取验证码</button>
+      </div>
+    <br>
+      <div class="btn-box">
+        <button class="newbutton" @click="emaillogin()">登录</button>
+      </div>
+    </div>
+
+    <div v-if="loginmanner === 3" class="login-form" >
+      <div class="title-box">
+        <h1 class="form-h1-text bounce-top">扫码登录</h1>
+      </div>
+      <div class="login-error-msg">{{ login_error_msg }}</div>
+      <div class="input-box">
+        <input v-model="login_username" type="text" placeholder="用户名" />
+        <input v-model="login_password" type="password" placeholder="密码" />
+      </div>
+      <div class="btn-box">
+        <button class="newbutton" @click="login()">登录</button>
+      </div>
+    </div>
+  </div>
+
+</template>
+
+<script>
+
+import { useStore } from 'vuex'
+import { ref } from 'vue'
+import router from '../router'
+
+
+export default {
+  components: {
+
+},
+  setup() {
+    const store = useStore();
+    let username = ref('');
+    let password = ref('');
+    let email = ref('');
+    let code = ref('');
+    let error_message = ref('');
+    let loginmanner = ref(1);
+    let email_error_message = ref('');
+
+
+
+    const jwt_token = localStorage.getItem("jwt_token");
+    if (jwt_token) {
+      store.commit("updateToken", jwt_token);
+      store.dispatch("getInfo", {
+        success() {
+          router.push({ name: "home" });
+          store.commit("updatePullingInfo", false);
+        },
+        error() {
+          store.commit("updatePullingInfo", false);
+        }
+      })
+    } else {
+      store.commit("updatePullingInfo", false);
+    }
+
+    const login = () => {
+      console.log(username.value)
+      error_message.value = "";
+      store.dispatch("login", {
+        username: username.value,
+        password: password.value,
+        success() {
+          store.dispatch("getInfo", {
+            success() {
+              router.push({ name: 'home' });
+            }
+          })
+        },
+        error() {
+          error_message.value = "用户名或密码错误";
+        }
+      })
+    }
+
+    const emaillogin = () => {
+      error_message.value = "";
+      store.dispatch("emaillogin", {
+        email: email.value,
+        code: code.value,
+        success() {
+          store.dispatch("getInfo", {
+            success() {
+              router.push({ name: 'home' });
+            }
+          })
+        },
+        error() {
+          error_message.value = "验证码错误";
+        }
+      })
+    }
+
+
+
+    return {
+      username,
+      password,
+      email,
+      code,
+      error_message,
+      login,
+      loginmanner,
+      email_error_message,
+      emaillogin,
+    }
+  }
+}
+</script>
+
+<style scoped>
+button {
+  width: 100%;
+}
+
+div.error-message {
+  color: red;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.register-error-msg {
+  position: absolute;
+  top: 40%;
+  font-size: 20px;
+  color: #c3404b;
+  writing-mode: tb-rl;
+  font-family: cursive;
+}
+
+.login-error-msg {
+  position: absolute;
+  top: 40%;
+  /* left: 69%; */
+  writing-mode: tb-rl;
+  font-size: 20px;
+  color: #c3404b;
+  font-family: cursive;
+}
+
+.form-h1-text {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 去除input的轮廓 */
+input {
+  outline: none;
+}
+
+.box {
+  height: 100%;
+}
+
+.box {
+  overflow-x: hidden;
+  display: flex;
+  background: linear-gradient(to right, rgb(247, 209, 215), rgb(191, 227, 241));
+}
+
+span {
+  position: absolute;
+  z-index: 0;
+  bottom: 0;
+  border-radius: 50%;
+  /* 径向渐变 */
+  background: radial-gradient(circle at 72% 28%,
+      #fff 3px,
+      #ff7edf 8%,
+      #5b5b5b,
+      #aad7f9 100%);
+  /* 动画 */
+  animation: myMove 4s linear infinite;
+}
+
+@keyframes myMove {
+  0% {
+    transform: translateY(0%);
+    opacity: 1;
+  }
+
+  50% {
+    transform: translate(10%, -1000%);
+  }
+
+  75% {
+    transform: translate(-20%, -1200%);
+  }
+
+  99% {
+    opacity: 0.9;
+  }
+
+  100% {
+    transform: translateY(-1800%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+.box {
+  width: 1050px;
+  height: 600px;
+  display: flex;
+  position: relative;
+  top: 50px;
+  z-index: 2;
+  margin: auto;
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 2px 1px 19px rgba(0, 0, 0, 0.1);
+}
+
+.pre-box {
+  width: calc(1050px / 2);
+  height: 100%;
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 99;
+  border-radius: 4px;
+  background-color: #edd4dc;
+  box-shadow: 2px 1px 19px rgba(0, 0, 0, 0.1);
+  transition: 0.5s ease-in-out;
+}
+
+.pre-box h1 {
+  margin-top: 150px;
+  text-align: center;
+  letter-spacing: 5px;
+  color: white;
+  user-select: none;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.pre-box p {
+  height: 30px;
+  line-height: 30px;
+  text-align: center;
+  margin: 20px 0;
+  user-select: none;
+  font-weight: bold;
+  color: white;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-box {
+  width: 200px;
+  height: 200px;
+  margin: 20px auto;
+  border-radius: 50%;
+  user-select: none;
+  overflow: hidden;
+  box-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.img-box img {
+  width: 100%;
+  transition: 0.5s;
+}
+
+.login-form,
+.select-login {
+  flex: 1;
+  height: 100%;
+}
+
+.title-box {
+  height: 300px;
+  line-height: 500px;
+}
+
+.title-box h1 {
+  text-align: center;
+  color: white;
+  user-select: none;
+  letter-spacing: 5px;
+  text-shadow: 4px 4px 3px rgba(0, 0, 0, 0.1);
+}
+
+.input-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+input {
+  width: 60%;
+  height: 40px;
+  margin-bottom: 20px;
+  text-indent: 10px;
+  border: 1px solid #fff;
+  background-color: rgba(255, 255, 255, 0.3);
+  border-radius: 120px;
+  backdrop-filter: blur(10px);
+}
+
+input:focus::placeholder {
+  opacity: 0;
+}
+
+h1 {
+  display: block;
+  font-size: 2em;
+  margin-block-start: 0.67em;
+  margin-block-end: 0.67em;
+  margin-inline-start: 0px;
+  margin-inline-end: 0px;
+  font-weight: bold;
+}
+
+.btn-box {
+  display: flex;
+  justify-content: center;
+}
+
+.newbutton {
+  width: 100px;
+  height: 30px;
+  margin: 0 7px;
+  line-height: 30px;
+  border: none;
+  border-radius: 4px;
+  background-color: #69b3f0;
+  color: white;
+}
+
+button:hover {
+  cursor: pointer;
+  opacity: 0.8;
+  -webkit-animation: wobble-hor-bottom 0.8s both;
+  animation: wobble-hor-bottom 0.8s both;
+}
+
+.btn-box p {
+  height: 30px;
+  line-height: 30px;
+  user-select: none;
+  font-size: 14px;
+  color: #426277;
+}
+
+.btn-box p:hover {
+  cursor: pointer;
+  border-bottom: 1px solid #426277;
+}
+
+.bounce-top {
+  -webkit-animation: bounce-top 0.9s both;
+  animation: bounce-top 0.9s both;
+}
+
+@-webkit-keyframes bounce-top {
+  0% {
+    -webkit-transform: translateY(-45px);
+    transform: translateY(-45px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  40% {
+    -webkit-transform: translateY(-24px);
+    transform: translateY(-24px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  65% {
+    -webkit-transform: translateY(-12px);
+    transform: translateY(-12px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  82% {
+    -webkit-transform: translateY(-6px);
+    transform: translateY(-6px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  93% {
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  25%,
+  55%,
+  75%,
+  87% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+    opacity: 1;
+  }
+}
+
+@keyframes bounce-top {
+  0% {
+    -webkit-transform: translateY(-45px);
+    transform: translateY(-45px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+    opacity: 1;
+  }
+
+  24% {
+    opacity: 1;
+  }
+
+  40% {
+    -webkit-transform: translateY(-24px);
+    transform: translateY(-24px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  65% {
+    -webkit-transform: translateY(-12px);
+    transform: translateY(-12px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  82% {
+    -webkit-transform: translateY(-6px);
+    transform: translateY(-6px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  93% {
+    -webkit-transform: translateY(-4px);
+    transform: translateY(-4px);
+    -webkit-animation-timing-function: ease-in;
+    animation-timing-function: ease-in;
+  }
+
+  25%,
+  55%,
+  75%,
+  87% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+  }
+
+  100% {
+    -webkit-transform: translateY(0px);
+    transform: translateY(0px);
+    -webkit-animation-timing-function: ease-out;
+    animation-timing-function: ease-out;
+    opacity: 1;
+  }
+}
+
+@-webkit-keyframes wobble-hor-bottom {
+
+  0%,
+  100% {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+  }
+
+  15% {
+    -webkit-transform: translateX(-30px) rotate(-6deg);
+    transform: translateX(-30px) rotate(-6deg);
+  }
+
+  30% {
+    -webkit-transform: translateX(15px) rotate(6deg);
+    transform: translateX(15px) rotate(6deg);
+  }
+
+  45% {
+    -webkit-transform: translateX(-15px) rotate(-3.6deg);
+    transform: translateX(-15px) rotate(-3.6deg);
+  }
+
+  60% {
+    -webkit-transform: translateX(9px) rotate(2.4deg);
+    transform: translateX(9px) rotate(2.4deg);
+  }
+
+  75% {
+    -webkit-transform: translateX(-6px) rotate(-1.2deg);
+    transform: translateX(-6px) rotate(-1.2deg);
+  }
+}
+
+@keyframes wobble-hor-bottom {
+
+  0%,
+  100% {
+    -webkit-transform: translateX(0%);
+    transform: translateX(0%);
+    -webkit-transform-origin: 50% 50%;
+    transform-origin: 50% 50%;
+  }
+
+  15% {
+    -webkit-transform: translateX(-30px) rotate(-6deg);
+    transform: translateX(-30px) rotate(-6deg);
+  }
+
+  30% {
+    -webkit-transform: translateX(15px) rotate(6deg);
+    transform: translateX(15px) rotate(6deg);
+  }
+
+  45% {
+    -webkit-transform: translateX(-15px) rotate(-3.6deg);
+    transform: translateX(-15px) rotate(-3.6deg);
+  }
+
+  60% {
+    -webkit-transform: translateX(9px) rotate(2.4deg);
+    transform: translateX(9px) rotate(2.4deg);
+  }
+
+  75% {
+    -webkit-transform: translateX(-6px) rotate(-1.2deg);
+    transform: translateX(-6px) rotate(-1.2deg);
+  }
+}
+
+.thrid-party-login {
+  margin-top: 2vh;
+  text-align: center;
+  font-size: 14px;
+  user-select: none;
+}
+
+.thrid-party-login>p>img {
+  height: 4vh;
+  margin-right: 1vw;
+  cursor: pointer;
+}
+.location {
+  margin-left: 36%;
+  justify-content: center;
+}
+.btn-location {
+  margin-top: 40px;
+}
+</style><template>
+  <ContentField>
+    <el-dialog v-model="smallDialogFormVisible" title="添加患者诊疗信息" width="500">
+      <el-form :model="form">
+        <el-form-item label="症状表现和诊断结果:" :label-width="formLabelWidth">
+          <el-input maxlength="200" v-model="form.diagnosis" autocomplete="off" :row="20" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 400 }" style="width: 100% ;"/>
+        </el-form-item>
+        <el-form-item label="处方:" :label-width="formLabelWidth">
+          <el-input maxlength="200" v-model="form.prescription" autocomplete="off" :row="20" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 400 }" style="width: 100% ;"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="smallToggleForm">返回</el-button>
+          <el-button type="primary" @click="smallEdit">
+            提交
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="dialogFormVisible" title="添加患者诊疗信息" width="500">
+      <el-form :model="form">
+        <el-form-item label="用户名" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off" style="width: 150px"/>
+        </el-form-item>
+        <el-form-item label="症状表现和诊断结果:" :label-width="formLabelWidth">
+          <el-input maxlength="200" v-model="form.diagnosis" autocomplete="off" :row="20" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 400 }" style="width: 100% ;"/>
+        </el-form-item>
+        <el-form-item label="处方:" :label-width="formLabelWidth">
+          <el-input maxlength="200" v-model="form.prescription" autocomplete="off" :row="20" type="textarea"
+                    :autosize="{ minRows: 2, maxRows: 400 }" style="width: 100% ;"/>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="toggleForm">返回</el-button>
+          <el-button type="primary" @click="addRecordFather">
+            提交
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
+    <div style="display: flex; align-items: center;">
+      <div v-if="$store.state.user.role !== 1">
+        <el-button type="primary" class="addbutton" @click="toggleForm">
+          添加诊疗记录
+          <el-icon class="el-icon--right">
+          </el-icon>
+        </el-button>
+      </div>
+    </div>
+    <el-table :data="records" :border="parentBorder" style="width: 100%">
+      <el-table-column type="expand">
+        <template #default="props">
+          <h5>随诊记录</h5>
+          <el-table :data="props.row.followUpList" :border="childBorder">
+            <el-table-column label="症状表现及诊断结果" prop="diagnosis"/>
+            <el-table-column label="处方" prop="prescription"/>
+            <el-table-column label="时间" prop="consultationDate"/>
+            <el-table-column label="操作">
+              <template #default="scope">
+                <el-button size="small" @click="smallToggleForm(scope.row.id)"
+                >Edit
+                </el-button
+                >
+                <el-button
+                    size="small"
+                    type="danger"
+                    @click="handleDelete(scope.row.id)"
+                >Delete
+                </el-button
+                >
+              </template>
+            </el-table-column>
+          </el-table>
+        </template>
+      </el-table-column>
+      <el-table-column :label="getColumnLabel()" prop="otherName"/>
+      <el-table-column :label="getPhoneTable()" prop="otherPhone"/>
+      <el-table-column label="症状表现及诊断结果" prop="diagnosis"/>
+      <el-table-column label="处方" prop="prescription"/>
+      <el-table-column label="时间" prop="consultationDate"/>
+      <el-table-column label="操作">
+        <template v-if="$store.state.user.role !== 1" #default="scope">
+          <el-button size="small" @click="handleEdit(scope.row.id)"
+          >新增随诊
+          </el-button
+          >
+          <el-button
+              size="small"
+              type="danger"
+              @click="handleDelete(scope.row.id)"
+          >删除
+          </el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+                   :page-sizes="[10, 20, 30, 40]" :page-size="pageSize" layout=" sizes, prev, pager, next, jumper"
+                   :total="total"/>
+  </ContentField>
+</template>
+
+<script setup>
+import ContentField from '../components/ContentField.vue';
+import {ref, reactive} from "vue";
+import store from "@/store";
+
+const records = ref([]); // 创建响应式的userInfos
+import $ from 'jquery';
+import {apiUrl} from "../../config";
+import {ElMessage, ElMessageBox} from "element-plus";
+
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
+const tempId = ref()
+const handleSizeChange = (val) => {
+  pageSize.value = val;
+  getRecords();
+};
+
+const handleCurrentChange = (val) => {
+  currentPage.value = val;
+  getRecords();
+};
+
+const form = reactive({
+  name: '',
+  diagnosis: '',
+  prescription: '',
+  delivery: false,
+  type: [],
+  resource: '',
+  desc: '',
+})
+const dialogFormVisible = ref(false);
+const smallDialogFormVisible = ref(false)
+
+function smallEdit(){
+  $.ajax({
+    url: `${apiUrl}/api/record/updateRecord/`,
+    type: "post",
+    data: {
+      id: tempId.value,
+      diagnosis: form.diagnosis,
+      prescription: form.prescription,
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        console.log("处理成功");
+        getRecords()
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+  smallToggleForm()
+}
+function addRecordFather() {
+  $.ajax({
+    url: `${apiUrl}/api/record/addRecord/`,
+    type: "post",
+    data: {
+      fatherId: 0,
+      patientId: form.name,
+      diagnosis: form.diagnosis,
+      prescription: form.prescription,
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        console.log("处理成功");
+        getRecords()
+
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+  toggleForm()
+}
+
+const toggleForm = () => {
+  dialogFormVisible.value = !dialogFormVisible.value;
+};
+
+const smallToggleForm = (id) => {
+  smallDialogFormVisible.value = !smallDialogFormVisible.value;
+  tempId.value = id
+};
+const handleDelete = (row) => {
+  $.ajax({
+    url: `${apiUrl}/api/record/deleteRecord/`,
+    type: "post",
+    data: {
+      id: row,
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        getRecords()
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+}
+const handleEdit = (row) => {
+  console.log(row);
+  ElMessageBox.prompt('选择随诊时间', '新增随诊记录',
+      {
+        confirmButtonText: '提交',
+        cancelButtonText: '取消',
+        //     时间选择器，分钟选项间隔为 10 分钟
+        inputPattern: /\d{4}-\d{2}-\d{2} \d{2}:\d{2}/,
+      })
+      .then(({value}) => {
+        $.ajax({
+          url: `${apiUrl}/api/record/addRecord/`,
+          type: "post",
+          data: {
+            fatherId: row,
+            consultationDate: value,
+          },
+          headers: {
+            Authorization: "Bearer " + store.state.user.token,
+          },
+          success(resp) {
+            if (resp.code === 200) {
+              console.log("处理成功");
+            } else {
+              console.log(resp.message);
+            }
+          },
+        });
+      })
+      .catch(() => {
+        ElMessage({
+          type: 'info',
+          message: 'Input canceled',
+        })
+      })
+}
+
+getRecords()
+
+function getColumnLabel() {
+  return store.state.user.role === 1 ? '医生用户名' : '患者用户名';
+}
+
+function getPhoneTable() {
+  return store.state.user.role === 1 ? '医生电话' : '患者电话';
+}
+
+function getRecords() {
+  $.ajax({
+    url: `${apiUrl}/api/record/getRecords/`,
+    type: "post",
+    data: {
+      page: currentPage.value,
+      pageSize: pageSize.value,
+    },
+    headers: {
+      Authorization: "Bearer " + store.state.user.token,
+    },
+    success(resp) {
+      if (resp.code === 200) {
+        records.value = resp.data; // 更新userInfos的值
+      } else {
+        console.log(resp.message);
+      }
+    },
+  });
+}
+</script>
+
+<style scoped>
+.addbutton {
+  margin-left: 10px;
+}
+
+.table {
+  margin-top: 20px;
+}
+</style><template>
+    <ContentField>
+        404 Not Found
+    </ContentField>
+</template>
+
+<script>
+import ContentField from '../../components/ContentField.vue'
+
+export default {
+    components: {
+        ContentField
+    }
+}
+</script>
+
+<style scoped>
+</style>export class Cell {
+    constructor(r, c) {
+        this.r = r;
+        this.c = c;
+        this.x = c + 0.5;
+        this.y = r + 0.5;
+    }
+}import { AcGameObject } from "./AcGameObject";
+import { Cell } from "./Cell";
+
+export class Snake extends AcGameObject {
+    constructor(info, gamemap) {
+        super();
+
+        this.id = info.id;
+        this.color = info.color;
+        this.gamemap = gamemap;
+
+        this.cells = [new Cell(info.r, info.c)];  // 存放蛇的身体，cells[0]存放蛇头
+        this.next_cell = null;  // 下一步的目标位置
+
+        this.speed = 5;  // 蛇每秒走5个格子
+        this.direction = -1;  // -1表示没有指令，0、1、2、3表示上右下左
+        this.status = "idle";  // idle表示静止，move表示正在移动，die表示死亡
+
+        this.dr = [-1, 0, 1, 0];  // 4个方向行的偏移量
+        this.dc = [0, 1, 0, -1];  // 4个方向列的偏移量
+
+        this.step = 0;  // 表示回合数
+        this.eps = 1e-2;  // 允许的误差
+
+        this.eye_direction = 0;
+        if (this.id === 1) this.eye_direction = 2;  // 左下角的蛇初始朝上，右上角的蛇朝下
+
+        this.eye_dx = [  // 蛇眼睛不同方向的x的偏移量
+            [-1, 1],
+            [1, 1],
+            [1, -1],
+            [-1, -1],
+        ];
+        this.eye_dy = [  // 蛇眼睛不同方向的y的偏移量
+            [-1, -1],
+            [-1, 1],
+            [1, 1],
+            [1, -1],
+        ]
+    }
+
+    start() {
+
+    }
+
+    set_direction(d) {
+        this.direction = d;
+    }
+
+    check_tail_increasing() {  // 检测当前回合，蛇的长度是否增加
+        if (this.step <= 10) return true;
+        if (this.step % 3 === 1) return true;
+        return false;
+    }
+
+    next_step() {  // 将蛇的状态变为走下一步
+        const d = this.direction;
+        this.next_cell = new Cell(this.cells[0].r + this.dr[d], this.cells[0].c + this.dc[d]);
+        this.eye_direction = d;
+        this.direction = -1;  // 清空操作
+        this.status = "move";
+        this.step ++ ;
+
+        const k = this.cells.length;
+        for (let i = k; i > 0; i -- ) {
+            this.cells[i] = JSON.parse(JSON.stringify(this.cells[i - 1]));
+        }
+    }
+
+    update_move() {
+        const dx = this.next_cell.x - this.cells[0].x;
+        const dy = this.next_cell.y - this.cells[0].y;
+        const distance = Math.sqrt(dx * dx + dy * dy);
+
+        if (distance < this.eps) {  // 走到目标点了
+            this.cells[0] = this.next_cell;  // 添加一个新蛇头
+            this.next_cell = null;
+            this.status = "idle";  // 走完了，停下来
+
+            if (!this.check_tail_increasing()) {  // 蛇不变长
+                this.cells.pop();
+            }
+        } else {
+            const move_distance = this.speed * this.timedelta / 1000;  // 每两帧之间走的距离
+            this.cells[0].x += move_distance * dx / distance;
+            this.cells[0].y += move_distance * dy / distance;
+
+            if (!this.check_tail_increasing()) {
+                const k = this.cells.length;
+                const tail = this.cells[k - 1], tail_target = this.cells[k - 2];
+                const tail_dx = tail_target.x - tail.x;
+                const tail_dy = tail_target.y - tail.y;
+                tail.x += move_distance * tail_dx / distance;
+                tail.y += move_distance * tail_dy / distance;
+            }
+        }
+    }
+
+    update() {  // 每一帧执行一次
+        if (this.status === 'move') {
+            this.update_move();
+        }
+
+        this.render();
+    }
+
+    render() {
+        const L = this.gamemap.L;
+        const ctx = this.gamemap.ctx;
+
+        ctx.fillStyle = this.color;
+        if (this.status === "die") {
+            ctx.fillStyle = "white";
+        }
+
+        for (const cell of this.cells) {
+            ctx.beginPath();
+            ctx.arc(cell.x * L, cell.y * L, L / 2 * 0.8, 0, Math.PI * 2);
+            ctx.fill();
+        }
+
+        for (let i = 1; i < this.cells.length; i ++ ) {
+            const a = this.cells[i - 1], b = this.cells[i];
+            if (Math.abs(a.x - b.x) < this.eps && Math.abs(a.y - b.y) < this.eps)
+                continue;
+            if (Math.abs(a.x - b.x) < this.eps) {
+                ctx.fillRect((a.x - 0.4) * L, Math.min(a.y, b.y) * L, L * 0.8, Math.abs(a.y - b.y) * L);
+            } else {
+                ctx.fillRect(Math.min(a.x, b.x) * L, (a.y - 0.4) * L, Math.abs(a.x - b.x) * L, L * 0.8);
+            }
+        }
+
+        ctx.fillStyle = "black";
+        for (let i = 0; i < 2; i ++ ) {
+            const eye_x = (this.cells[0].x + this.eye_dx[this.eye_direction][i] * 0.15) * L;
+            const eye_y = (this.cells[0].y + this.eye_dy[this.eye_direction][i] * 0.15) * L;
+
+            ctx.beginPath();
+            ctx.arc(eye_x, eye_y, L * 0.05, 0, Math.PI * 2);
+            ctx.fill();
+        }
+    }
+}
+import { AcGameObject } from "./AcGameObject";
+
+export class Wall extends AcGameObject {
+    constructor(r, c, gamemap) {
+        super();
+
+        this.r = r;
+        this.c = c;
+        this.gamemap = gamemap;
+        this.color = "#B37226";
+    }
+
+    update() {
+        this.render();
+    }
+
+    render() {
+        const L = this.gamemap.L;
+        const ctx = this.gamemap.ctx;
+
+        ctx.fillStyle = this.color;
+        ctx.fillRect(this.c * L, this.r * L, L, L);
+    }
+}const AC_GAME_OBJECTS = [];
+
+export class AcGameObject {
+    constructor() {
+        AC_GAME_OBJECTS.push(this);
+        this.timedelta = 0;
+        this.has_called_start = false;
+    }
+
+    start() {  // 只执行一次
+    }
+
+    update() {  // 每一帧执行一次，除了第一帧之外
+
+    }
+
+    on_destroy() {  // 删除之前执行
+
+    }
+
+    destroy() {
+        this.on_destroy();
+
+        for (let i in AC_GAME_OBJECTS) {
+            const obj = AC_GAME_OBJECTS[i];
+            if (obj === this) {
+                AC_GAME_OBJECTS.splice(i);
+                break;
+            }
+        }
+    }
+}
+
+let last_timestamp;  // 上一次执行的时刻
+const step = timestamp => {
+    for (let obj of AC_GAME_OBJECTS) {
+        if (!obj.has_called_start) {
+            obj.has_called_start = true;
+            obj.start();
+        } else {
+            obj.timedelta = timestamp - last_timestamp;
+            obj.update();
+        }
+    }
+
+    last_timestamp = timestamp;
+    requestAnimationFrame(step)
+}
+
+requestAnimationFrame(step)import { AcGameObject } from "./AcGameObject";
+import { Wall } from "./Wall";
+import { Snake } from './Snake';
+
+export class GameMap extends AcGameObject {
+    constructor(ctx, parent, store) {
+        super();
+
+        this.ctx = ctx;
+        this.parent = parent;
+        this.store = store;
+        this.L = 0;
+
+        this.rows = 13;
+        this.cols = 14;
+        
+        this.inner_walls_count = 20;
+        this.walls = [];
+
+        this.snakes = [
+            new Snake({id: 0, color: "#4876EC", r: this.rows - 2, c: 1}, this),
+            new Snake({id: 1, color: "#F94848", r: 1, c: this.cols - 2}, this),
+        ];
+    }
+
+    create_walls() {
+        const g = this.store.state.pk.gamemap;
+
+        for (let r = 0; r < this.rows; r ++ ) {
+            for (let c = 0; c < this.cols; c ++ ) {
+                if (g[r][c]) {
+                    this.walls.push(new Wall(r, c, this));
+                }
+            }
+        }
+    }
+
+    add_listening_events() {
+        console.log(this.store.state.record);
+
+        if (this.store.state.record.is_record) {
+            let k = 0;
+
+            const a_steps = this.store.state.record.a_steps;
+            const b_steps = this.store.state.record.b_steps;
+            const loser = this.store.state.record.record_loser;
+            const [snake0, snake1] = this.snakes;
+            const interval_id = setInterval(() => {
+                if (k >= a_steps.length - 1) {
+                    if (loser === "all" || loser === "A") {
+                        snake0.status = "die";
+                    }
+                    if (loser === "all" || loser === "B") {
+                        snake1.status = "die";
+                    }
+                    clearInterval(interval_id);
+                } else {
+                    snake0.set_direction(parseInt(a_steps[k]));
+                    snake1.set_direction(parseInt(b_steps[k]));
+                }
+                k ++ ;
+            }, 300);
+        } else {
+            this.ctx.canvas.focus();
+            
+            this.ctx.canvas.addEventListener("keydown", e => {
+                let d = -1;
+                if (e.key === 'w') d = 0;
+                else if (e.key === 'd') d = 1;
+                else if (e.key === 's') d = 2;
+                else if (e.key === 'a') d = 3;
+
+                if (d >= 0) {
+                    this.store.state.pk.socket.send(JSON.stringify({
+                        event: "move",
+                        direction: d,
+                    }));
+                }
+            });
+        }
+
+    }
+
+    start() {
+        this.create_walls();
+        
+        this.add_listening_events();
+    }
+
+    update_size() {
+        this.L = parseInt(Math.min(this.parent.clientWidth / this.cols, this.parent.clientHeight / this.rows));
+        this.ctx.canvas.width = this.L * this.cols;
+        this.ctx.canvas.height = this.L * this.rows;
+    }
+
+    check_ready() {  // 判断两条蛇是否都准备好下一回合了
+        for (const snake of this.snakes) {
+            if (snake.status !== "idle") return false;
+            if (snake.direction === -1) return false;
+        }
+        return true;
+    }
+
+    next_step() {  // 让两条蛇进入下一回合
+        for (const snake of this.snakes) {
+            snake.next_step();
+        }
+    }
+
+    check_valid(cell) {  // 检测目标位置是否合法：没有撞到两条蛇的身体和障碍物
+        for (const wall of this.walls) {
+            if (wall.r === cell.r && wall.c === cell.c)
+                return false;
+        }
+
+        for (const snake of this.snakes) {
+            let k = snake.cells.length;
+            if (!snake.check_tail_increasing()) {  // 当蛇尾会前进的时候，蛇尾不要判断
+                k -- ;
+            }
+            for (let i = 0; i < k; i ++ ) {
+                if (snake.cells[i].r === cell.r && snake.cells[i].c === cell.c)
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    update() {
+        this.update_size();
+        if (this.check_ready()) {
+            this.next_step();
+        }
+        this.render();
+    }
+
+    render() {
+        const color_even = "#AAD751", color_odd = "#A2D149";
+        for (let r = 0; r < this.rows; r ++ ) {
+            for (let c = 0; c < this.cols; c ++ ) {
+                if ((r + c) % 2 == 0) {
+                    this.ctx.fillStyle = color_even;
+                } else {
+                    this.ctx.fillStyle = color_odd;
+                }
+                this.ctx.fillRect(c * this.L, r * this.L, this.L, this.L);
+            }
+        }
+    }
+}
+import $ from 'jquery'
+import {apiUrl} from "../../config";
+
+export default {
+    state: {
+        id: "",
+        username: "",
+        photo: "",
+        token: "",
+        email: "",
+        is_login: false,
+        pulling_info: true,  // 是否正在从云端拉取信息
+        role: "",
+    },
+    getters: {
+    },
+    mutations: {
+        updatePhoto (state, photo) {
+            state.photo = photo;
+          },
+        updateUsername (state, username) {
+            state.username = username;
+        },  // 更新用户名  未使用
+        
+        updateUser(state, user) {
+            state.id = user.id;
+            state.username = user.username;
+            state.email = user.email;
+            state.photo = user.photo;
+            state.is_login = user.is_login;
+            state.rating = user.rating;
+            state.role = user.role;
+        },
+        updateToken(state, token) {
+            state.token = token;
+        },
+  
+        logout(state) {
+            state.id = "";
+            state.username = "";
+            state.email = "";
+            state.photo = "";
+            state.token = "";
+            state.is_login = false;
+            state.role = "";
+        },
+        updatePullingInfo(state, pulling_info) {
+            state.pulling_info = pulling_info;
+        }
+    },
+    actions: {
+        login(context, data) {
+            $.ajax({
+                url: `${apiUrl}/api/user/account/token/`,
+                type: "post",
+                data: {
+                    username: data.username,
+                    password: data.password,
+                },
+                success(resp) {
+                    if (resp.code === 200) {
+                        localStorage.setItem("jwt_token", resp.data.token);
+                        context.commit("updateToken", resp.data.token);
+                        data.success(resp);
+                    } else {
+                        data.error(resp);
+                    }
+                },
+                error(resp) {
+                    data.error(resp);
+                }
+            });
+        },
+
+        getInfo(context, data) {
+            $.ajax({
+                url: `${apiUrl}/api/user/account/info/`,
+                type: "get",
+                headers: {
+                    Authorization: "Bearer " + context.state.token,
+                },
+                success(resp) {
+                    if (resp.code === 200) {
+                        context.commit("updateUser", {
+                            ...resp.data,
+                            is_login: true,
+                        });
+                        data.success(resp);
+                        console.log(resp);
+                    } else {
+                        data.error(resp);
+                    }
+                },
+                error(resp) {
+                    data.error(resp);
+                }
+            })
+        },
+        logout(context) {
+            localStorage.removeItem("jwt_token");
+            context.commit("logout");
+        }
+    },
+    modules: {
+    }
+}
+import { createStore } from 'vuex'
+import ModuleUser from './user'
+
+
+export default createStore({
+  state: {
+  },
+  getters: {
+  },
+  mutations: {
+  },
+  actions: {
+  },
+  modules: {
+    user: ModuleUser,
+  }
+})
+import { createRouter, createWebHistory } from 'vue-router'
+import NotFound from '../views/error/NotFound'
+import UserAccountLoginView from '../views/UserAccountLoginView.vue'
+import UserAccountRegisterView from '../views/UserAccountRegisterView.vue'
+import IndexView from '../views/IndexView.vue'
+import store from '../store/index'
+import ConsultationRecordView from "@/views/ConsultationRecordView.vue";
+import ReserveRecordView from "@/views/ReserveRecordView.vue";
+import SigningRecordView from "@/views/SigningRecordView.vue";
+import signInfoView from "@/views/SignInfoView.vue";
+
+const routes = [
+  {
+    path: "/",
+    name: "home",
+    component: IndexView,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: "/consultations/",
+    name: "consultations_index",
+    component: ConsultationRecordView,
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/reserve/",
+    name: "reserve_index",
+    component: ReserveRecordView,
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/signing/",
+    name: "signing_index",
+    component: SigningRecordView,
+    meta: {
+      requestAuth: true,
+    }
+  },
+  {
+    path: "/user/account/login/",
+    name: "user_account_login",
+    component: UserAccountLoginView,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: "/user/account/register/",
+    name: "user_account_register",
+    component: UserAccountRegisterView,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: "/view/SignInfoView/",
+    name: "sign_info_view",
+    component: signInfoView,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: "/404/",
+    name: "404",
+    component: NotFound,
+    meta: {
+      requestAuth: false,
+    }
+  },
+  {
+    path: "/:catchAll(.*)",
+    redirect: "/404/"
+  }
+]
+
+const router = createRouter({
+  history: createWebHistory(),
+  routes
+})
+
+router.beforeEach((to, from, next) => {
+  if (to.meta.requestAuth && !store.state.user.is_login) {
+    next({name: "user_account_login"});
+  } else {
+    next();
+  }
+})
+
+export default router

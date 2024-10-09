@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- MyBatis映射文件，用于操作Cart表 -->
+<mapper namespace="com.lhqjlb.project.mapper.CartMapper">
+
+    <!-- 分页查询未删除的Cart记录 -->
+    <select id="page" resultType="com.lhqjlb.project.entity.Cart">
+        SELECT
+            *
+        FROM
+            cart
+        where deletetime = 0
+        <if test="params.userid != null and params.userid != ''">
+            and userid = #{params.userid}
+        </if>
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 查询未删除的Cart记录列表 -->
+    <select id="list" resultType="com.lhqjlb.project.entity.Cart">
+        SELECT
+            *
+        FROM
+            cart
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+
+    <!-- 批量删除Science记录 -->
+    <update id="deleteMany">
+        update cart
+        set deletetime = #{deletetime}
+        where id in
+        <foreach collection="ids" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </update>
+
+    <!-- 查询未删除的Cart记录列表，用于下拉列表 -->
+    <select id="listOptions" resultType="com.lhqjlb.project.entity.Cart">
+        SELECT
+            *
+        FROM
+            cart
+        where deletetime = 0
+        ORDER BY
+            id DESC
+    </select>
+    <select id="getCart" resultType="com.lhqjlb.project.entity.Cart">
+        select * from cart
+        where deletetime = 0
+        and userid = #{userid}
+        and medicineid = #{medicineid}
+    </select>
+
+</mapper>
