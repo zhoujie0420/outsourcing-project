@@ -1,6 +1,0 @@
-# graduation
-
-```sql
-```
-
-
