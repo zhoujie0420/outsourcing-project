@@ -13,33 +13,34 @@ export const useMainStore = defineStore(
         const contactData = ref([]);
         const setting = {
             // 设置信息
-            title: "白龙桥敬老院预约服务管理系统",
+            title: "白龙桥敬老院管理系统",
             uploadURL: "http://localhost:8080/upload",
         };
         const adminMenu = ref([
             // 管理员菜单列表
-            {name: "用户管理", path: "/user"},
-            {name: "知识管理", path: "/knowledge"},
             {name: "公告管理", path: "/notice"},
-            {name: "医护管理", path: "/shop"},
-            {name: "患者管理", path: "/medicine"},
+            {name: "用户管理", path: "/user"},
             {name: "预约管理", path: "/statistics"},
-            {name: "评价分析", path: "/order"},
+            {name: "数据分析", path: "/knowledge"},
+            // {name: "医护管理", path: "/shop"},
+            // {name: "患者管理", path: "/medicine"},
+            // {name: "评价分析", path: "/order"},
         ]);
         const shopMenu = ref([
             // 管理员菜单列表
-            {name: "店铺管理", path: "/shop1"},
-            {name: "医护管理", path: "/medicine1"},
-            {name: "预约管理", path: "/order1"},
-            {name: "评价分析", path: "/statistics1"},
-            {name: "在线消息", path: "/message1"},
+            {name: "任务查看", path: "/shop1"},
+            // {name: "医护管理", path: "/medicine1"},
+            // {name: "预约管理", path: "/order1"},
+            // {name: "评价分析", path: "/statistics1"},
+            // {name: "在线消息", path: "/message1"},
         ]);
         const userMenu = ref([
-            // 管理员菜单列表
+            // 用户菜单列表
             {name: "首页", path: "/home"},
-            {name: "知识普及", path: "/knowledge2"},
+            // {name: "知识普及", path: "/knowledge2"},
             {name: "在线预约", path: "/medicine2"},
-            {name: "在线消息", path: "/message2"},
+            {name: "服务评价", path: "/medicine2"},
+            // {name: "在线消息", path: "/message2"},
             {name: "Ai问诊", path: "/aiChat"},
         ]);
 
@@ -48,7 +49,7 @@ export const useMainStore = defineStore(
             if (curuser.value.typee == "管理员") {
                 // 如果当前用户是管理员
                 return adminMenu;
-            } else if (curuser.value.typee == "药店") {
+            } else if (curuser.value.typee == "工作人员") {
                 return shopMenu;
             } else if (curuser.value.typee == "用户") {
                 return userMenu;

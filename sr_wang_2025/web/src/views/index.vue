@@ -68,7 +68,6 @@ onMounted(() => {
       z-index: 999;
     "
   >
-    <img src="/vite.svg" style="width: 25px; height: 25px"/>
     <span
         style="color: white; margin-left: 5px; font-weight: bold; font-size: 14px"
     >{{ title }}</span

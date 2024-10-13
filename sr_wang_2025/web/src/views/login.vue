@@ -29,8 +29,8 @@ const options = ref([
     label: "管理员",
   },
   {
-    value: "药店",
-    label: "药店",
+    value: "工作人员",
+    label: "工作人员",
   },
   {
     value: "用户",
